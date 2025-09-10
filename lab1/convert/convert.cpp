@@ -4,7 +4,7 @@ using namespace std;
 // Conversion constants
 #define CtoFRatio 1.80
 #define CtoFOffset 32.00
-#define CtoKOffset 27.30
+#define CtoKOffset 273.00
 
 // Scale indentifiers
 #define DegC 'C'
@@ -16,116 +16,116 @@ using namespace std;
 
 // Conversion function prototypes
 // Should be in a ".h" file, but placed here for lab1
-double toFahrenheit( double T, char scale );
-double toCelsius( double T, char scale );
-double toKelvin( double T, char scale );
+double toFahrenheit(double T, char scale);
+double toCelsius(double T, char scale);
+double toKelvin(double T, char scale);
 
-int main(void)
-{
-   double inTemp;
-   char scale;
-   
-   cout << "\nThis program converts a temperature between the scales\n"
-        << "\t Fahrenheit, Celsius and Kelvin.\n";
+int main(void) {
+  double inTemp;
+  char scale;
 
-   // Get a temperature and scale
-   cout << "\nPlease enter the temperature you wish to convert,\n"
-        << "\tfollowed by its scale (eg. 23 C): ";
-   cin >> inTemp >> scale;
+  cout << "\nThis program converts a temperature between the scales\n"
+       << "\t Fahrenheit, Celsius and Kelvin.\n";
 
-   // Check for validity of scale
-   if( scale != DegF && scale != Degf &&
-       scale != DegC && scale != Degc &&
-       scale != DegK && scale != Degk ) 
+  // Get a temperature and scale
+  cout << "\nPlease enter the temperature you wish to convert,\n"
+       << "\tfollowed by its scale (eg. 23 C): ";
+  cin >> inTemp >> scale;
 
-      cerr << "\nError in input: Invalid scale `" << scale << "'\n";
-      return -1
-   }
+  // Check for validity of scale
+  if (scale != DegF && scale != Degf && scale != DegC && scale != Degc &&
+      scale != DegK && scale != Degk) {
+    cerr << "\nError in input: Invalid scale `" << scale << "'\n";
+    return -1;
+  }
 
-   // Print the converted results
-   cout << "\n" << inTemp << " " << scale << " is equivalent to:\n"
-        << "\t" << toFahrenheit( inTemp, scale ) << " F, "
-        << toCelsius( inTemp, scale ) << " C, and "
-        << toKelvin( inTemp, scale ) << " K\n" 
-   
-   return 0;
+  // Print the converted results
+  cout << "\n"
+       << inTemp << " " << scale << " is equivalent to:\n"
+       << "\t" << toFahrenheit(inTemp, scale) << " F, "
+       << toCelsius(inTemp, scale) << " C, and " << toKelvin(inTemp, scale)
+       << " K\n";
+
+  return 0;
 }
 
 // Converts the temperate 'T' from scale 'scale' to Fahrenheit
-double toFahrenheit( double T, char scale )
-{
-   double outT;
-   
-   switch( scale ) {
+double toFahrenheit(double T, char scale) {
+  double outT;
 
-   case DegF:
-   case Degf:
+  switch (scale) {
+    case DegF:
+    case Degf:
       outT = T;
-      
-   case DegC:
-   case Degc:
+      break;
+
+    case DegC:
+    case Degc:
       outT = T * CtoFRatio + CtoFOffset;
+      break;
 
-   case DegK:
-   case Degk:
-      outT = ( T - CtoKOffset ) * CtoFRatio + CtoFOffset;
+    case DegK:
+    case Degk:
+      outT = (T - CtoKOffset) * CtoFRatio + CtoFOffset;
+      break;
 
-   default:
-      break; 
-   }
+    default:
+      break;
+  }
 
-   return outT;
+  return outT;
 }
 
 // Converts the temperate 'T' from scale 'scale' to Celsius
-double toCelsius( double T, char scale )
-{
-   double outT;
-   
-   switch( scale ) {
-	
-	   case DegF:
-	   case Degf:
-	      outT = ( T - CtoFOffset ) / CtoFRatio;
-	      
-	   case DegC:
-	   case Degc:
-	      outT = T;
-	
-	   case DegK:
-	   case Degk:
-	      outT = T - CtoKOffset;
-	
-	   default:
-	      break; 
-   }
+double toCelsius(double T, char scale) {
+  double outT;
 
-   return outT;
+  switch (scale) {
+    case DegF:
+    case Degf:
+      outT = (T - CtoFOffset) / CtoFRatio;
+      break;
+
+    case DegC:
+    case Degc:
+      outT = T;
+      break;
+
+    case DegK:
+    case Degk:
+      outT = T - CtoKOffset;
+      break;
+
+    default:
+      break;
+  }
+
+  return outT;
 }
 
 // Converts the temperate 'T' from scale 'scale' to Kelvin
-double toKelvin( double T, char scale )
-{
-   double outT;
-   
-   switch( scale ) {
-	
-	   case DegF:
-	   case Degf:
-	      outT = ( T - CtoFOffset ) / CtoFRatio + CtoKOffset;
-	      
-	   case DegC:
-	   case Degc:
-	      outT = T + CtoKOffset;
-	
-	   case DegK:
-	   case Degk: 
-	      outT = T;
-	
-	   default:
-	      break; 
-   }
+double toKelvin(double T, char scale) {
+  double outT;
 
-   return outT;
+  switch (scale) {
+    case DegF:
+    case Degf:
+      outT = (T - CtoFOffset) / CtoFRatio + CtoKOffset;
+      break;
+
+    case DegC:
+    case Degc:
+      outT = T + CtoKOffset;
+      break;
+
+    case DegK:
+    case Degk:
+      outT = T;
+      break;
+
+    default:
+      break;
+  }
+
+  return outT;
 }
-

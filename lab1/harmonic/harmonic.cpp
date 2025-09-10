@@ -11,7 +11,7 @@ using namespace std;
 double harmonic(int n) {
     double h = 0;
 
-    while (n >= 0) {
+    while (n > 0) {
         h = h + (1.0/n);
         n = n -1;
     }
