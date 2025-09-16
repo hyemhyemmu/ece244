@@ -54,17 +54,14 @@ double toFahrenheit(double T, char scale) {
   double outT;
 
   switch (scale) {
-    case DegF:
     case Degf:
       outT = T;
       break;
 
-    case DegC:
     case Degc:
       outT = T * CtoFRatio + CtoFOffset;
       break;
 
-    case DegK:
     case Degk:
       outT = (T - CtoKOffset) * CtoFRatio + CtoFOffset;
       break;
@@ -81,17 +78,14 @@ double toCelsius(double T, char scale) {
   double outT;
 
   switch (scale) {
-    case DegF:
     case Degf:
       outT = (T - CtoFOffset) / CtoFRatio;
       break;
 
-    case DegC:
     case Degc:
       outT = T;
       break;
 
-    case DegK:
     case Degk:
       outT = T - CtoKOffset;
       break;
@@ -108,17 +102,14 @@ double toKelvin(double T, char scale) {
   double outT;
 
   switch (scale) {
-    case DegF:
     case Degf:
       outT = (T - CtoFOffset) / CtoFRatio + CtoKOffset;
       break;
 
-    case DegC:
     case Degc:
       outT = T + CtoKOffset;
       break;
 
-    case DegK:
     case Degk:
       outT = T;
       break;
