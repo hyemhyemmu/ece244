@@ -30,41 +30,28 @@ void Ball::update() {
   y = y + velocity_y * timeStep;
 }
 
-// helper function for x_overlap
-int Ball::get_x_overlap(Ball& b) {
+int Ball::overlap(Ball& b) {
+  // Calculate x overlap
   double x1 = getX();
   double width1 = width;
   double x2 = b.getX();
   double width2 = b.width;
 
-  if (x1 + width1 < x2 || x2 + width2 < x1) {
-    return 0;
+  int x_overlap = 0;
+  if (!(x1 + width1 < x2 || x2 + width2 < x1)) {
+    x_overlap = ((x1 + width1 - x2) > 0 ? x1 + width1 - x2 : x2 + width2 - x1);
   }
 
-  else {
-    return ((x1 + width1 - x2) > 0 ? x1 + width1 - x2 : x2 + width2 - x1);
-  }
-}
-
-// helper function for y_overlap
-int Ball::get_y_overlap(Ball& b) {
+  // Calculate y overlap
   double y1 = y;
   double h1 = height;
   double y2 = b.y;
   double h2 = b.height;
 
-  if (y1 + h1 < y2 || y2 + h2 < y1) {
-    return 0;
+  int y_overlap = 0;
+  if (!(y1 + h1 < y2 || y2 + h2 < y1)) {
+    y_overlap = ((y1 + h1 - y2) > 0 ? y1 + h1 - y2 : y2 + h2 - y1);
   }
-
-  else {
-    return ((y1 + h1 - y2) > 0 ? y1 + h1 - y2 : y2 + h2 - y1);
-  }
-}
-
-int Ball::overlap(Ball& b) {
-  int x_overlap = get_x_overlap(b);
-  int y_overlap = get_y_overlap(b);
 
   if ((x_overlap == 0) && (y_overlap == 0))
     return NO_OVERLAP;
