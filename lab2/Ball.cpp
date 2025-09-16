@@ -91,36 +91,34 @@ int Ball::overlap(Player& p) {
 
 // bounce function
 void Ball::bounce(Ball arr[], int ballCount, Player player) {
-  // Check wall collisions (vertical walls) - but not left wall (x <= 0)
-  if (x + width >= WIDTH) {
+  // Check vertical walls
+  if (x <= 0 || x + width >= WIDTH) {
     velocity_x = -velocity_x;
   }
 
-  // Check ground collision
+  // Check horizontal walls
   if (y <= 0 || y + height >= HEIGHT) {
     velocity_y = -velocity_y;
   }
 
-  // Check collision with player paddle
-  if (overlap(player) != NO_OVERLAP) {
-    int overlapType = overlap(player);
-    if (overlapType == HORIZONTAL_OVERLAP) {
-      velocity_x = -velocity_x;
-    } else {
-      velocity_y = -velocity_y;
-    }
+  // Check collision with paddle
+  int paddleOverlap = this->overlap(player);
+  if (paddleOverlap == HORIZONTAL_OVERLAP) {
+    velocity_x = -velocity_x;
+  } else if (paddleOverlap == VERTICAL_OVERLAP) {
+    velocity_y = -velocity_y;
   }
 
-  // Check collisions with other balls
+  // Check collision with other balls
   for (int i = 0; i < ballCount; i++) {
-    if (arr[i].getID() != this->id) {  // Don't check collision with self
-      int overlapType = overlap(arr[i]);
-      if (overlapType != NO_OVERLAP) {
-        if (overlapType == HORIZONTAL_OVERLAP) {
-          velocity_x = -velocity_x;
-        } else {
-          velocity_y = -velocity_y;
-        }
+    if (arr[i].getID() != this->id) {  // don't check itself
+      int overlapType = this->overlap(arr[i]);
+      if (overlapType == HORIZONTAL_OVERLAP) {
+        this->velocity_x = -this->velocity_x;
+        arr[i].velocity_x = -arr[i].velocity_x;
+      } else if (overlapType == VERTICAL_OVERLAP) {
+        this->velocity_y = -this->velocity_y;
+        arr[i].velocity_y = -arr[i].velocity_y;
       }
     }
   }
