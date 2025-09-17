@@ -41,9 +41,71 @@ int main() {
   Player player = Player(0, 5, 10);
 
   while (!gameEnded) {
-    // TODO: ECE 244 Student: Complete the game loop here only!
-    // ECE 244 Student: DO NOT edit any other segments of this file!
+    // -------------------------
+    
+    // Run simulation_fps time steps per frame
+    for (int step = 0; step < simulation_fps; step++) {
+      // Handle input
+      char input = get_input();
+      switch(input){
+        case('q'):
+          gameEnded = true;
+          break;
+        case('A'): // up arrow
+        case('B'): // down arrow
+          player.update(input);
+          break;
+        default:
+          // No input or other input, paddle stays in place
+          break;
+      }
+      
+      if (gameEnded) break;
+      
+      // Update balls
+      for (int i = 0; i < ballCount; i++) {
+        balls_array[i].update();
+      }
+      
+      // Check bounces and collisions
+      for (int i = 0; i < ballCount; i++) {
+        balls_array[i].bounce(balls_array, ballCount, player);
+        
+        // Check if ball hit left wall (game ends)
+        if (balls_array[i].getX() <= 0) {
+          gameEnded = true;
+          break;
+        }
+        
+        // Check if ball collided with paddle (score increases)
+        if (balls_array[i].overlap(player) != NO_OVERLAP) {
+          score++;
+          
+          // Every 2 hits, decrease paddle size by 1
+          if (score % 2 == 0) {
+            player.decreaseHeight(1);
+          }
+          
+          // Every 5 hits, add a new ball (max 5 balls)
+          if (score % 5 == 0 && ballCount < max_ballCount) {
+            balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
+            ballCount++;
+          }
+        }
+      }
+      
+      if (gameEnded) break;
+    }
+    
+    // Draw all game objects after simulation steps are complete
+    if (!gameEnded) {
+      for (int i = 0; i < ballCount; i++) {
+        balls_array[i].draw(screen);
+      }
+      player.draw(screen);
+    }
 
+    // -------------------------
     messageToPutOnScreen = "Your score is: " + std::to_string(score);
     screen.update(messageToPutOnScreen);
 
