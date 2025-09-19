@@ -72,7 +72,7 @@ int main() {
         balls_array[i].bounce(balls_array, ballCount, player);
 
         // Check if ball hit left wall (game ends)
-        if (balls_array[i].getX() <= 0) {
+        if (balls_array[i].getX() < 0) {  // Changed from <= to <
           gameEnded = true;
           break;
         }
@@ -98,12 +98,13 @@ int main() {
     }
 
     // Draw all game objects after simulation steps are complete
-    if (!gameEnded) {
-      for (int i = 0; i < ballCount; i++) {
+    // Always draw paddle regardless of game state to debug the issue
+    for (int i = 0; i < ballCount; i++) {
+      if (!gameEnded) {
         balls_array[i].draw(screen);
       }
-      player.draw(screen);
     }
+    player.draw(screen);
 
     // -------------------------
     messageToPutOnScreen = "Your score is: " + std::to_string(score);
