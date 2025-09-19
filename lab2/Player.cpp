@@ -45,9 +45,7 @@ void Player::update(char c) {
 }
 
 void Player::draw(Screen& screen_to_draw_to) {
-  for (int j = y; j <= y + height; ++j) {
-    for (int i = x; i <= x + width; ++i) {
-      screen_to_draw_to.addPixel(i, j, '#');
-    }
+  for (int j = y; j < y + height; ++j) {
+    screen_to_draw_to.addPixel(x, j, '#');
   }
 }
