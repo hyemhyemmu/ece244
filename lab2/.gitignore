@@ -34,6 +34,8 @@ desktop.ini
 *.out
 *.exe
 build/
+Debug/
+Release/
 dist/
 bin/
 
