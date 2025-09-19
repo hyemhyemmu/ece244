@@ -98,13 +98,12 @@ int main() {
     }
 
     // Draw all game objects after simulation steps are complete
-    // Always draw player paddle, only skip drawing balls if game ended
-    for (int i = 0; i < ballCount; i++) {
-      if (!gameEnded) {
+    if (!gameEnded) {
+      for (int i = 0; i < ballCount; i++) {
         balls_array[i].draw(screen);
       }
+      player.draw(screen);
     }
-    player.draw(screen);
 
     // -------------------------
     messageToPutOnScreen = "Your score is: " + std::to_string(score);

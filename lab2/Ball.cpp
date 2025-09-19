@@ -91,12 +91,12 @@ int Ball::overlap(Player& p) {
 
 // bounce function
 void Ball::bounce(Ball arr[], int ballCount, Player player) {
-  // Check right wall only (left wall ends game)
+  // Check right wall (left wall is handled in main.cpp to end game)
   if (x + width >= WIDTH) {
     velocity_x = -velocity_x;
   }
 
-  // Check horizontal walls
+  // Check top and bottom walls
   if (y <= 0 || y + height >= HEIGHT) {
     velocity_y = -velocity_y;
   }
@@ -114,11 +114,13 @@ void Ball::bounce(Ball arr[], int ballCount, Player player) {
     if (arr[i].getID() != this->id) {  // don't check itself
       int overlapType = this->overlap(arr[i]);
       if (overlapType == HORIZONTAL_OVERLAP) {
-        this->velocity_x = -this->velocity_x;
-        arr[i].velocity_x = -arr[i].velocity_x;
-      } else if (overlapType == VERTICAL_OVERLAP) {
+        // If balls overlap horizontally, flip y-velocity
         this->velocity_y = -this->velocity_y;
         arr[i].velocity_y = -arr[i].velocity_y;
+      } else if (overlapType == VERTICAL_OVERLAP) {
+        // If balls overlap vertically, flip x-velocity
+        this->velocity_x = -this->velocity_x;
+        arr[i].velocity_x = -arr[i].velocity_x;
       }
     }
   }
