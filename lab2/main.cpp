@@ -34,10 +34,10 @@ int main() {
   const int max_ballCount = 5;
 
   Ball balls_array[max_ballCount];
-  bool ball_hit_paddle[max_ballCount] = {
-      false};  // Track if ball already hit paddle
+  bool ball_was_overlapping[max_ballCount] = {
+      false};  // Track previous frame overlap status
 
-  balls_array[0] = Ball(30.0, 30.0, 1.7, 0, ballCount);
+  balls_array[0] = Ball(30.0, 30.0, 1.7, 0, 0);  // First ball has ID 0
   ballCount++;
 
   Player player = Player(0, 5, 10);
@@ -80,29 +80,30 @@ int main() {
         }
 
         // Check if ball collided with paddle (score increases)
-        if (balls_array[i].overlap(player) != NO_OVERLAP) {
-          // Only count score if this ball hasn't hit paddle before
-          if (!ball_hit_paddle[i]) {
-            ball_hit_paddle[i] = true;
-            score++;
+        bool currently_overlapping =
+            (balls_array[i].overlap(player) != NO_OVERLAP);
 
-            // Every 2 hits, decrease paddle size by 1
-            if (score % 2 == 0) {
-              player.decreaseHeight(1);
-            }
+        // Only score if ball is overlapping now but wasn't overlapping before
+        // (new collision)
+        if (currently_overlapping && !ball_was_overlapping[i]) {
+          score++;
 
-            // Every 5 hits, add a new ball (max 5 balls)
-            if (score % 5 == 0 && ballCount < max_ballCount) {
-              balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
-              ball_hit_paddle[ballCount] =
-                  false;  // Initialize new ball's hit status
-              ballCount++;
-            }
+          // Every 2 hits, decrease paddle size by 1
+          if (score % 2 == 0) {
+            player.decreaseHeight(1);
           }
-        } else {
-          // If ball is not overlapping, reset hit status (allow scoring again)
-          ball_hit_paddle[i] = false;
+
+          // Every 5 hits, add a new ball (max 5 balls)
+          if (score % 5 == 0 && ballCount < max_ballCount) {
+            balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
+            ball_was_overlapping[ballCount] =
+                false;  // Initialize new ball status
+            ballCount++;
+          }
         }
+
+        // Update overlap status for next frame
+        ball_was_overlapping[i] = currently_overlapping;
       }
 
       if (gameEnded) break;
