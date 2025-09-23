@@ -34,6 +34,8 @@ int main() {
   const int max_ballCount = 5;
 
   Ball balls_array[max_ballCount];
+  bool ball_hit_paddle[max_ballCount] = {
+      false};  // Track if ball already hit paddle
 
   balls_array[0] = Ball(30.0, 30.0, 1.7, 0, ballCount);
   ballCount++;
@@ -79,30 +81,39 @@ int main() {
 
         // Check if ball collided with paddle (score increases)
         if (balls_array[i].overlap(player) != NO_OVERLAP) {
-          score++;
+          // Only count score if this ball hasn't hit paddle before
+          if (!ball_hit_paddle[i]) {
+            ball_hit_paddle[i] = true;
+            score++;
 
-          // Every 2 hits, decrease paddle size by 1
-          if (score % 2 == 0) {
-            player.decreaseHeight(1);
-          }
+            // Every 2 hits, decrease paddle size by 1
+            if (score % 2 == 0) {
+              player.decreaseHeight(1);
+            }
 
-          // Every 5 hits, add a new ball (max 5 balls)
-          if (score % 5 == 0 && ballCount < max_ballCount) {
-            balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
-            ballCount++;
+            // Every 5 hits, add a new ball (max 5 balls)
+            if (score % 5 == 0 && ballCount < max_ballCount) {
+              balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
+              ball_hit_paddle[ballCount] =
+                  false;  // Initialize new ball's hit status
+              ballCount++;
+            }
           }
+        } else {
+          // If ball is not overlapping, reset hit status (allow scoring again)
+          ball_hit_paddle[i] = false;
         }
       }
 
       if (gameEnded) break;
     }
 
+    // Clear the previous frame - CRITICAL for proper rendering!
+    screen.deleteCurrentlyShownFrame();
+
     // Draw all game objects after simulation steps are complete
-    // Always draw paddle regardless of game state to debug the issue
     for (int i = 0; i < ballCount; i++) {
-      if (!gameEnded) {
-        balls_array[i].draw(screen);
-      }
+      balls_array[i].draw(screen);
     }
     player.draw(screen);
 

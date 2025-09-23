@@ -24,20 +24,22 @@ int Player::getHeight() { return height; }
 int Player::getWidth() { return width; }
 
 void Player::decreaseHeight(int delta_to_decrease_by) {
-  int newHeight = height - delta_to_decrease_by;
-  height = (newHeight < 3) ? 3 : newHeight;
+  if (height - delta_to_decrease_by >= 3) {
+    height = height - delta_to_decrease_by;  // minimum height is 3
+  }
+  // If new height would be < 3, don't change height
 }
 
 void Player::update(char c) {
   if (c == 'A') {  // up
     y += 2;
-
-    if (y + height > HEIGHT - 1) {
-      y = HEIGHT - 1 - height;  // up max
+    // Check if paddle went above the ceiling (coordinates range 0 to HEIGHT-1)
+    if (y + height > HEIGHT) {
+      y = HEIGHT - height;  // up max
     }
   } else if (c == 'B') {  // down
     y -= 2;
-
+    // Check if paddle went below the ground
     if (y < 0) {
       y = 0;  // down max
     }

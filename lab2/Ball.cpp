@@ -91,12 +91,14 @@ int Ball::overlap(Player& p) {
 
 // bounce function
 void Ball::bounce(Ball arr[], int ballCount, Player player) {
-  // Check right wall (left wall is handled in main.cpp to end game)
+  // Check right wall only (left wall handled in main.cpp for game over)
+  // If ball hits right wall, flip x-velocity
   if (x + width >= WIDTH) {
     velocity_x = -velocity_x;
   }
 
-  // Check top and bottom walls
+  // Check horizontal boundaries (top and bottom)
+  // If ball is on ground or beyond, flip y-velocity
   if (y <= 0 || y + height >= HEIGHT) {
     velocity_y = -velocity_y;
   }
@@ -104,9 +106,11 @@ void Ball::bounce(Ball arr[], int ballCount, Player player) {
   // Check collision with paddle
   int paddleOverlap = this->overlap(player);
   if (paddleOverlap == HORIZONTAL_OVERLAP) {
-    velocity_x = -velocity_x;
-  } else if (paddleOverlap == VERTICAL_OVERLAP) {
+    // If balls overlap horizontally, flip y-velocity
     velocity_y = -velocity_y;
+  } else if (paddleOverlap == VERTICAL_OVERLAP) {
+    // If balls overlap vertically, flip x-velocity
+    velocity_x = -velocity_x;
   }
 
   // Check collision with other balls
@@ -114,18 +118,17 @@ void Ball::bounce(Ball arr[], int ballCount, Player player) {
     if (arr[i].getID() != this->id) {  // don't check itself
       int overlapType = this->overlap(arr[i]);
       if (overlapType == HORIZONTAL_OVERLAP) {
-        // If balls overlap horizontally, flip y-velocity
+        // If two balls overlap horizontally, flip y-velocity
         this->velocity_y = -this->velocity_y;
-        arr[i].velocity_y = -arr[i].velocity_y;
       } else if (overlapType == VERTICAL_OVERLAP) {
-        // If balls overlap vertically, flip x-velocity
+        // If two balls overlap vertically, flip x-velocity (otherwise case)
         this->velocity_x = -this->velocity_x;
-        arr[i].velocity_x = -arr[i].velocity_x;
       }
     }
   }
 }
 
 void Ball::draw(Screen& screen_to_draw_to) {
+  // Since width and height are 1, we only call addPixel once
   screen_to_draw_to.addPixel(x, y, 'o');
 }
