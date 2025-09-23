@@ -24,7 +24,7 @@ CXX = g++
 # 	-Wunused-parameter \
 # 	-Wvariadic-macros \
 # 	-Wwrite-strings
-CXXFLAGS = -Wall -Wextra -std=c++11 -Ofast $(EXTRA_CXXFLAGS)	
+CXXFLAGS = -Wall -Wextra -std=c++11 -Ofast $(EXTRA_CXXFLAGS)
 
 
 # Include directories
@@ -106,7 +106,7 @@ ${APPDIR}/app.png:
 	cp $(DOWNLOADED_STUFF_FOLDER)/app.png ${APPDIR}/app.png
 	# wget -O ${APPDIR}/app.png https://upload.wikimedia.org/wikipedia/commons/3/3e/Tree-256x256.png
 
-${APPDIR}/${AppName}.desktop: ${APPDIR}/usr/bin 
+${APPDIR}/${AppName}.desktop: ${APPDIR}/usr/bin
 	echo "[Desktop Entry]" > ${APPDIR}/${AppName}.desktop
 	echo "Name=${AppName}" >> ${APPDIR}/${AppName}.desktop
 	echo "Exec=doesNotMatterLol" >> ${APPDIR}/${AppName}.desktop
@@ -121,7 +121,7 @@ ${APPDIR}/AppRun: ${APPDIR}/usr/bin
 	chmod +x ${APPDIR}/AppRun
 
 ${AppName}: EXTRA_CXXFLAGS=-DRUNNING_WITH_PYTHON_TESTER=1
-${AppName}: $(DOWNLOADED_STUFF_FOLDER)/appimagetool-x86_64.AppImage ${APPDIR}/usr/bin ${APPDIR}/app.png ${APPDIR}/${AppName}.desktop ${APPDIR}/AppRun
+${AppName}: clean $(DOWNLOADED_STUFF_FOLDER)/appimagetool-x86_64.AppImage ${APPDIR}/usr/bin ${APPDIR}/app.png ${APPDIR}/${AppName}.desktop ${APPDIR}/AppRun
 	if [ ! -x $(DOWNLOADED_STUFF_FOLDER)/appimagetool-x86_64.AppImage ]; then \
 		chmod +x $(DOWNLOADED_STUFF_FOLDER)/appimagetool-x86_64.AppImage; \
 	fi
