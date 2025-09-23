@@ -108,9 +108,6 @@ int main() {
       if (gameEnded) break;
     }
 
-    // Clear the previous frame - CRITICAL for proper rendering!
-    screen.deleteCurrentlyShownFrame();
-
     // Draw all game objects after simulation steps are complete
     for (int i = 0; i < ballCount; i++) {
       balls_array[i].draw(screen);
