@@ -34,10 +34,8 @@ int main() {
   const int max_ballCount = 5;
 
   Ball balls_array[max_ballCount];
-  bool ball_was_overlapping[max_ballCount] = {
-      false};  // Track previous frame overlap status
 
-  balls_array[0] = Ball(30.0, 30.0, 1.7, 0, 0);  // First ball has ID 0
+  balls_array[0] = Ball(30.0, 30.0, 1.7, 0, ballCount);
   ballCount++;
 
   Player player = Player(0, 5, 10);
@@ -45,7 +43,6 @@ int main() {
   while (!gameEnded) {
     // -------------------------
 
-    // Run simulation_fps time steps per frame
     for (int step = 0; step < simulation_fps; step++) {
       // Handle input
       char input = get_input();
@@ -53,8 +50,8 @@ int main() {
         case ('q'):
           gameEnded = true;
           break;
-        case ('A'):  // up arrow
-        case ('B'):  // down arrow
+        case ('A'):  // up
+        case ('B'):  // down
           player.update(input);
           break;
         default:
@@ -62,23 +59,15 @@ int main() {
           break;
       }
 
-      if (gameEnded) break;
+      if (gameEnded) break; 
 
       // Update balls
       for (int i = 0; i < ballCount; i++) {
         balls_array[i].update();
       }
 
-      // Check bounces and collisions
+      // First, check for scoring BEFORE bouncing
       for (int i = 0; i < ballCount; i++) {
-        balls_array[i].bounce(balls_array, ballCount, player);
-
-        // Check if ball hit left wall (game ends)
-        if (balls_array[i].getX() < 0) {  // Changed from <= to <
-          gameEnded = true;
-          break;
-        }
-
         // Check if ball collided with paddle (score increases)
         bool currently_overlapping =
             (balls_array[i].overlap(player) != NO_OVERLAP);
@@ -104,6 +93,17 @@ int main() {
 
         // Update overlap status for next frame
         ball_was_overlapping[i] = currently_overlapping;
+      }
+
+      // Then, handle bouncing
+      for (int i = 0; i < ballCount; i++) {
+        balls_array[i].bounce(balls_array, ballCount, player);
+
+        // Check if ball hit left wall (game ends)
+        if (balls_array[i].getX() < 0) {
+          gameEnded = true;
+          break;
+        }
       }
 
       if (gameEnded) break;

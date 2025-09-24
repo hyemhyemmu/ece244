@@ -30,57 +30,62 @@ void Ball::update() {
   y = y + velocity_y * timeStep;
 }
 
-int Ball::overlap(Ball& b) {
-  // Calculate x overlap
-  double x1 = getX();
-  double width1 = width;
-  double x2 = b.getX();
-  double width2 = b.width;
+// int Ball::overlap(Ball& b) {
+//   // Calculate x overlap
+//   double x1 = getX();
+//   double width1 = width;
+//   double x2 = b.getX();
+//   double width2 = b.width;
 
-  int x_overlap = 0;
-  if (!(x1 + width1 < x2 || x2 + width2 < x1)) {
-    x_overlap = ((x1 + width1 - x2) > 0 ? x1 + width1 - x2 : x2 + width2 - x1);
-  }
+//   int x_overlap = 0;
+//   if (!(x1 + width1 < x2 || x2 + width2 < x1)) {
+//     x_overlap = ((x1 + width1 - x2) > 0 ? x1 + width1 - x2 : x2 + width2 -
+//     x1);
+//   }
 
-  // Calculate y overlap
-  double y1 = y;
-  double h1 = height;
-  double y2 = b.y;
-  double h2 = b.height;
+//   // Calculate y overlap
+//   double y1 = y;
+//   double h1 = height;
+//   double y2 = b.y;
+//   double h2 = b.height;
 
-  int y_overlap = 0;
-  if (!(y1 + h1 < y2 || y2 + h2 < y1)) {
-    y_overlap = ((y1 + h1 - y2) > 0 ? y1 + h1 - y2 : y2 + h2 - y1);
-  }
+//   int y_overlap = 0;
+//   if (!(y1 + h1 < y2 || y2 + h2 < y1)) {
+//     y_overlap = ((y1 + h1 - y2) > 0 ? y1 + h1 - y2 : y2 + h2 - y1);
+//   }
 
-  if ((x_overlap == 0) && (y_overlap == 0))
-    return NO_OVERLAP;
-  else
-    return (x_overlap > y_overlap) ? HORIZONTAL_OVERLAP : VERTICAL_OVERLAP;
-}
+//   if ((x_overlap == 0) && (y_overlap == 0))
+//     return NO_OVERLAP;
+//   else
+//     return (x_overlap > y_overlap) ? HORIZONTAL_OVERLAP : VERTICAL_OVERLAP;
+// }
+
+void Ball::overlap(Ball& b) { return NO_OVERLAP; }
 
 // overlap function for Player
 int Ball::overlap(Player& p) {
+  // ball paras
   double x1 = getX();
-  double width1 = width;
-  double x2 = p.getX();
-  double width2 = p.getWidth();
-
+  double w1 = width;
   double y1 = y;
   double h1 = height;
+
+  // paddle paras
+  double x2 = p.getX();
+  double w2 = p.getWidth();
   double y2 = p.getY();
   double h2 = p.getHeight();
 
-  // Check x overlap
-  int x_overlap = 0;
-  if (!(x1 + width1 < x2 || x2 + width2 < x1)) {
-    x_overlap = (x1 + width1 - x2) > 0 ? x1 + width1 - x2 : x2 + width2 - x1;
-  }
+  // they only overlap when in both directions
+  bool bool_x_overlaps = (x1 < x2 + w2 && x1 + w1 > x2);
+  bool bool_y_overlaps = (y1 < y2 + h2 && y1 + h1 > y2);
 
-  // Check y overlap
+  int x_overlap = 0;
   int y_overlap = 0;
-  if (!(y1 + h1 < y2 || y2 + h2 < y1)) {
-    y_overlap = (y1 + h1 - y2) > 0 ? y1 + h1 - y2 : y2 + h2 - y1;
+
+  if (bool_x_overlaps && bool_y_overlaps) {
+    x_overlap = std::min(x1 + w1 - x2, x2 + w2 - x1);
+    y_overlap = std::min(y1 + h1 - y2, y2 + h2 - y1);
   }
 
   if ((x_overlap == 0) && (y_overlap == 0))
@@ -91,44 +96,40 @@ int Ball::overlap(Player& p) {
 
 // bounce function
 void Ball::bounce(Ball arr[], int ballCount, Player player) {
-  // Check right wall only (left wall handled in main.cpp for game over)
-  // If ball hits right wall, flip x-velocity
-  if (x + width >= WIDTH) {
+  // check collision with w
+  // horizontal check
+  if (x + width >= WIDTH - 1 || x <= 0) {
     velocity_x = -velocity_x;
   }
 
-  // Check horizontal boundaries (top and bottom)
-  // If ball is on ground or beyond, flip y-velocity
-  if (y <= 0 || y + height >= HEIGHT) {
+  // check vertical
+  if (y <= 0 || y + height >= HEIGHT - 1) {
     velocity_y = -velocity_y;
   }
 
   // Check collision with paddle
   int paddleOverlap = this->overlap(player);
   if (paddleOverlap == HORIZONTAL_OVERLAP) {
-    // If balls overlap horizontally, flip y-velocity
     velocity_y = -velocity_y;
   } else if (paddleOverlap == VERTICAL_OVERLAP) {
-    // If balls overlap vertically, flip x-velocity
     velocity_x = -velocity_x;
   }
 
-  // Check collision with other balls
-  for (int i = 0; i < ballCount; i++) {
-    if (arr[i].getID() != this->id) {  // don't check itself
-      int overlapType = this->overlap(arr[i]);
-      if (overlapType == HORIZONTAL_OVERLAP) {
-        // If two balls overlap horizontally, flip y-velocity
-        this->velocity_y = -this->velocity_y;
-      } else if (overlapType == VERTICAL_OVERLAP) {
-        // If two balls overlap vertically, flip x-velocity (otherwise case)
-        this->velocity_x = -this->velocity_x;
-      }
-    }
-  }
+  // // Check collision with other balls
+  // for (int i = 0; i < ballCount; i++) {
+  //   if (arr[i].getID() != this->id) {  // don't check itself
+  //     int overlapType = this->overlap(arr[i]);
+  //     if (overlapType == HORIZONTAL_OVERLAP) {
+  //       // If two balls overlap horizontally, flip y-velocity
+  //       this->velocity_y = -this->velocity_y;
+  //     } else if (overlapType == VERTICAL_OVERLAP) {
+  //       // If two balls overlap vertically, flip x-velocity (otherwise case)
+  //       this->velocity_x = -this->velocity_x;
+  //     }
+  //   }
+  // }
 }
 
 void Ball::draw(Screen& screen_to_draw_to) {
-  // Since width and height are 1, we only call addPixel once
   screen_to_draw_to.addPixel(x, y, 'o');
 }
