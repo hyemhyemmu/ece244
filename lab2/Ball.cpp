@@ -96,11 +96,14 @@ int Ball::overlap(Player& p) {
 
 // bounce function
 void Ball::bounce(Ball arr[], int ballCount, Player player) {
-  // check collision with w
-  // horizontal check
-  if (x + width >= WIDTH - 1 || x <= 0) {
+  // check collision with walls
+  // Right wall bounce
+  if (x + width >= WIDTH - 1) {
     velocity_x = -velocity_x;
   }
+
+  // left wall will end the game
+  //, this logic is implemented in main.cpp
 
   // check vertical
   if (y <= 0 || y + height >= HEIGHT - 1) {

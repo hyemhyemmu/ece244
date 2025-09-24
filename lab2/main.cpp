@@ -69,7 +69,20 @@ int main() {
         balls_array[i].update();
       }
 
-      // if bounce with paddle
+      // bounce with balls (handle collisions first)
+      for (int i = 0; i < ballCount; i++) {
+        balls_array[i].bounce(balls_array, ballCount, player);
+
+        // Check if ball hit left wall (game ends)
+        if (balls_array[i].getX() <= 0) {
+          gameEnded = true;
+          break;
+        }
+      }
+
+      if (gameEnded) break;
+
+      // Check for scoring after bounce handling
       for (int i = 0; i < ballCount; i++) {
         bool currently_overlapping =
             (balls_array[i].overlap(player) != NO_OVERLAP);
@@ -94,19 +107,6 @@ int main() {
         // Update overlap status for next frame
         ball_was_overlapping[i] = currently_overlapping;
       }
-
-      // bounce with balls
-      for (int i = 0; i < ballCount; i++) {
-        balls_array[i].bounce(balls_array, ballCount, player);
-
-        // Check if ball hit left wall (game ends)
-        if (balls_array[i].getX() <= 0) {
-          gameEnded = true;
-          break;
-        }
-      }
-
-      if (gameEnded) break;
     }
 
     // Draw all game objects after simulation steps are complete
