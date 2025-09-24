@@ -60,7 +60,7 @@ void Ball::update() {
 //     return (x_overlap > y_overlap) ? HORIZONTAL_OVERLAP : VERTICAL_OVERLAP;
 // }
 
-void Ball::overlap(Ball& b) { return NO_OVERLAP; }
+int Ball::overlap(Ball& b) { return NO_OVERLAP; }
 
 // overlap function for Player
 int Ball::overlap(Player& p) {

@@ -40,6 +40,9 @@ int main() {
 
   Player player = Player(0, 5, 10);
 
+  // Array to track previous overlap status for collision detection
+  bool ball_was_overlapping[max_ballCount] = {false};
+
   while (!gameEnded) {
     // -------------------------
 
@@ -59,21 +62,19 @@ int main() {
           break;
       }
 
-      if (gameEnded) break; 
+      if (gameEnded) break;
 
       // Update balls
       for (int i = 0; i < ballCount; i++) {
         balls_array[i].update();
       }
 
-      // First, check for scoring BEFORE bouncing
+      // Check for scoring (ball collision with paddle)
       for (int i = 0; i < ballCount; i++) {
-        // Check if ball collided with paddle (score increases)
         bool currently_overlapping =
             (balls_array[i].overlap(player) != NO_OVERLAP);
 
         // Only score if ball is overlapping now but wasn't overlapping before
-        // (new collision)
         if (currently_overlapping && !ball_was_overlapping[i]) {
           score++;
 
@@ -95,7 +96,7 @@ int main() {
         ball_was_overlapping[i] = currently_overlapping;
       }
 
-      // Then, handle bouncing
+      // Handle bouncing for all balls
       for (int i = 0; i < ballCount; i++) {
         balls_array[i].bounce(balls_array, ballCount, player);
 
