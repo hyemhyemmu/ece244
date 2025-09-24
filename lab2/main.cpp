@@ -40,9 +40,6 @@ int main() {
 
   Player player = Player(0, 5, 10);
 
-  // Array to track previous overlap status for collision detection
-  bool ball_was_overlapping[max_ballCount] = {false};
-
   while (!gameEnded) {
     // -------------------------
 
@@ -64,17 +61,20 @@ int main() {
 
       if (gameEnded) break;
 
-      // Update balls
+      // update balls
       for (int i = 0; i < ballCount; i++) {
         balls_array[i].update();
       }
 
-      // Check for scoring (ball collision with paddle)
+      // array to track previous overlap status for collision detection
+      bool ball_was_overlapping[max_ballCount] = {false};
+
+      // if bounce with paddle
       for (int i = 0; i < ballCount; i++) {
         bool currently_overlapping =
             (balls_array[i].overlap(player) != NO_OVERLAP);
 
-        // Only score if ball is overlapping now but wasn't overlapping before
+        // only score if ball is overlapping now but wasn't overlapping before
         if (currently_overlapping && !ball_was_overlapping[i]) {
           score++;
 
@@ -84,10 +84,9 @@ int main() {
           }
 
           // Every 5 hits, add a new ball (max 5 balls)
-          if (score % 5 == 0 && ballCount < max_ballCount) {
+          if (score % 5 == 0 && ballCount <= max_ballCount) {
             balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
-            ball_was_overlapping[ballCount] =
-                false;  // Initialize new ball status
+            ball_was_overlapping[ballCount] = false;
             ballCount++;
           }
         }
@@ -96,12 +95,12 @@ int main() {
         ball_was_overlapping[i] = currently_overlapping;
       }
 
-      // Handle bouncing for all balls
+      // bounce with balls
       for (int i = 0; i < ballCount; i++) {
         balls_array[i].bounce(balls_array, ballCount, player);
 
         // Check if ball hit left wall (game ends)
-        if (balls_array[i].getX() < 0) {
+        if (balls_array[i].getX() <= 0) {
           gameEnded = true;
           break;
         }
