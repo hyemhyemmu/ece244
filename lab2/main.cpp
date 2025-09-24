@@ -77,6 +77,7 @@ int main() {
         // only score if ball is overlapping now but wasn't overlapping before
         if (currently_overlapping && !ball_was_overlapping[i]) {
           score++;
+          ball_was_overlapping[i] = true;
 
           // Every 2 hits, decrease paddle size by 1
           if (score % 2 == 0) {
