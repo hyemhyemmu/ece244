@@ -23,7 +23,8 @@ double Ball::getX() { return x; }
 int Ball::getID() { return id; }
 
 void Ball::update() {
-  velocity_y = velocity_y - 0.02 * timeStep;  // gravity
+  // gravity
+  velocity_y -= 0.02 * timeStep;
 
   // displacement
   x = x + velocity_x * timeStep;
@@ -80,15 +81,15 @@ int Ball::overlap(Player& p) {
   bool bool_x_overlaps = (x1 < x2 + w2 && x1 + w1 > x2);
   bool bool_y_overlaps = (y1 < y2 + h2 && y1 + h1 > y2);
 
-  int x_overlap = 0;
-  int y_overlap = 0;
+  double x_overlap = 0;
+  double y_overlap = 0;
 
   if (bool_x_overlaps && bool_y_overlaps) {
     x_overlap = std::min(x1 + w1 - x2, x2 + w2 - x1);
     y_overlap = std::min(y1 + h1 - y2, y2 + h2 - y1);
   }
 
-  if ((x_overlap == 0) && (y_overlap == 0))
+  if ((x_overlap == 0.0) && (y_overlap == 0.0))
     return NO_OVERLAP;
   else
     return (x_overlap > y_overlap) ? HORIZONTAL_OVERLAP : VERTICAL_OVERLAP;

@@ -40,16 +40,15 @@ int main() {
 
   Player player = Player(0, 5, 10);
 
+  // array to track previous overlap status for collision detection
+  bool collision[max_ballCount];
+  for (int i = 0; i < max_ballCount; i++) {
+    collision[i] = false;
+  }
+
   while (!gameEnded) {
-    // -------------------------
-    // array to track previous overlap status for collision detection
-    bool collision[max_ballCount] = {};
-
-    for (int i = 0; i < max_ballCount; i++) {
-      collision[i] = false;
-    }
-
-    for (int step = 0; step < simulation_fps; step++) {
+    // na
+    for (int step = 0; step < simulation_fps && !gameEnded; step++) {
       // Handle input
       char input = get_input();
       switch (input) {
@@ -65,13 +64,13 @@ int main() {
           break;
       }
 
-      if (gameEnded) break;  // na
+      // if (gameEnded) break;  // na
 
       // bounce with balls
       for (int i = 0; i < ballCount; i++) {
         if (!collision[i]) {
           // hit paddle
-          if (balls_array[i].overlap(player)) {
+          if (balls_array[i].overlap(player) != NO_OVERLAP) {
             collision[i] = true;
             score++;
 
@@ -87,22 +86,26 @@ int main() {
 
               if (ballCount == max_ballCount + 1) {
                 gameEnded = true;
-                break;  // na
+                // break;  // na
               }
             }
           }
-
-          // check if ball hit left wall (game ends)
-          if (balls_array[i].getX() <= 0) {
-            gameEnded = true;
-            break;  // na
+          balls_array[i].bounce(balls_array, ballCount, player);
+        } else {
+          if (balls_array[i].overlap(player) == NO_OVERLAP) {
+            collision[i] = false;
           }
+        }
+
+        // check if ball hit left wall (game ends)
+        if (balls_array[i].getX() <= 0.0) {
+          gameEnded = true;
+          // break;  // na
         }
 
         // update ball status after dealing with everything else
         balls_array[i].update();
       }
-      if (gameEnded) break;  // na
     }
 
     // Draw all game objects after simulation steps are complete

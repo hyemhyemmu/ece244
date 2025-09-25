@@ -34,7 +34,7 @@ void Player::update(char c) {
   if (c == 'A') {  // up
     y += 2;
     if (y + height > HEIGHT) {
-      y = HEIGHT - 1;  // up max
+      y = HEIGHT - height - 1;  // up max
     }
   } else if (c == 'B') {  // down
     y -= 2;
