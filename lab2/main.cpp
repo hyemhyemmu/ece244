@@ -40,11 +40,14 @@ int main() {
 
   Player player = Player(0, 5, 10);
 
-  // array to track previous overlap status for collision detection
-  bool ball_was_overlapping[max_ballCount] = {false};
-
   while (!gameEnded) {
     // -------------------------
+    // array to track previous overlap status for collision detection
+    bool collision[max_ballCount] = {};
+
+    for (int i = 0; i < max_ballCount; i++) {
+      collision[i] = false;
+    }
 
     for (int step = 0; step < simulation_fps; step++) {
       // Handle input
@@ -62,48 +65,44 @@ int main() {
           break;
       }
 
-      if (gameEnded) break;
-
-      // update balls
-      for (int i = 0; i < ballCount; i++) {
-        balls_array[i].update();
-      }
+      if (gameEnded) break;  // na
 
       // bounce with balls
       for (int i = 0; i < ballCount; i++) {
-        int overlap_type_before = balls_array[i].overlap(player);
-        balls_array[i].bounce(balls_array, ballCount, player);
-        int overlap_type_after = balls_array[i].overlap(player);
+        if (!collision[i]) {
+          // hit paddle
+          if (balls_array[i].overlap(player)) {
+            collision[i] = true;
+            score++;
 
-        bool currently_overlapping = (overlap_type_after != NO_OVERLAP);
+            // Every 2 hits, decrease paddle size by 1
+            if (score % 2 == 0) {
+              player.decreaseHeight(1);
+            }
 
-        // Score if the ball started overlapping vertically in this step
-        if (overlap_type_after == VERTICAL_OVERLAP &&
-            !ball_was_overlapping[i]) {
-          score++;
+            // Every 5 hits, add a new ball (max 5 balls)
+            if (score % 5 == 0) {
+              balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
+              ballCount++;
 
-          // Every 2 hits, decrease paddle size by 1
-          if (score > 0 && score % 2 == 0) {
-            player.decreaseHeight(1);
+              if (ballCount == max_ballCount + 1) {
+                gameEnded = true;
+                break;  // na
+              }
+            }
           }
 
-          // Every 5 hits, add a new ball (max 5 balls)
-          if (score > 0 && score % 5 == 0 && ballCount < max_ballCount) {
-            balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
-            ball_was_overlapping[ballCount] = false;
-            ballCount++;
+          // check if ball hit left wall (game ends)
+          if (balls_array[i].getX() <= 0) {
+            gameEnded = true;
+            break;  // na
           }
         }
-        ball_was_overlapping[i] = currently_overlapping;
 
-        // Check if ball hit left wall (game ends)
-        if (balls_array[i].getX() <= 0) {
-          gameEnded = true;
-          break;
-        }
+        // update ball status after dealing with everything else
+        balls_array[i].update();
       }
-
-      if (gameEnded) break;
+      if (gameEnded) break;  // na
     }
 
     // Draw all game objects after simulation steps are complete
