@@ -48,6 +48,7 @@ int main() {
       collision[i] = false;
     }
 
+    begin_time = std::chrono::steady_clock::now();
     for (int step = 0; step < simulation_fps && !gameEnded; step++) {
       // Handle input
       char input = get_input();
@@ -80,13 +81,12 @@ int main() {
             }
 
             // Every 5 hits, add a new ball (max 5 balls)
-            if (score % 5 == 0 && ballCount < max_ballCount) {
+            if (score % 5 == 0) {
               balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
               ballCount++;
 
               if (ballCount == max_ballCount + 1) {
                 gameEnded = true;
-                // break;  // na
               }
             }
           }
@@ -122,8 +122,6 @@ int main() {
                std::chrono::steady_clock::now() - begin_time)
                .count() < (long int)milliseconds_per_frame) {
     }
-
-    begin_time = std::chrono::steady_clock::now();
   }
   messageToPutOnScreen = "Game over. Your score is: " + std::to_string(score);
   screen.update(messageToPutOnScreen);

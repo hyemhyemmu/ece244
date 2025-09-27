@@ -98,26 +98,25 @@ int Ball::overlap(Player& p) {
 
 // bounce function
 void Ball::bounce(Ball arr[], int ballCount, Player player) {
+  // Check collision with paddle first (like reference answer)
+  if (overlap(player) == VERTICAL_OVERLAP) {
+    velocity_y *= -1.0;
+  } else if (overlap(player) == HORIZONTAL_OVERLAP) {
+    velocity_x *= -1.0;
+  }
+
   // check collision with walls
   // Right wall bounce
-  if (x + width >= WIDTH) {
-    velocity_x = -velocity_x;
+  if (x >= WIDTH - 1.0) {
+    velocity_x *= -1.0;
   }
 
   // left wall will end the game
   //, this logic is implemented in main.cpp
 
   // check vertical
-  if (y <= 0.0 || (y + height) >= HEIGHT) {
-    velocity_y = -velocity_y;
-  }
-
-  // Check collision with paddle
-  int paddleOverlap = this->overlap(player);
-  if (paddleOverlap == HORIZONTAL_OVERLAP) {
-    velocity_y = -velocity_y;
-  } else if (paddleOverlap == VERTICAL_OVERLAP) {
-    velocity_x = -velocity_x;
+  if ((y <= 0.0) || (y >= HEIGHT - 1.0)) {
+    velocity_y *= -1.0;
   }
 
   // // Check collision with other balls
