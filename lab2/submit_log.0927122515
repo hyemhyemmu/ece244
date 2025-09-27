@@ -1,0 +1,110 @@
+Submitting assignment 2 from remote.ecf.utoronto.ca
+Checking for the expected files in the current directory
+Ball.cpp main.cpp Player.cpp
+Attempting to build your code.  Make output follows:
+==================================================================
+g++ -Wall -Wextra -std=c++11 -Ofast -DRUNNING_WITH_PYTHON_TESTER=1	 -I. -c io.cpp -o io.o
+g++ -Wall -Wextra -std=c++11 -Ofast -DRUNNING_WITH_PYTHON_TESTER=1	 -I. -c Screen.cpp -o Screen.o
+g++ -Wall -Wextra -std=c++11 -Ofast -DRUNNING_WITH_PYTHON_TESTER=1	 -I. -c Player.cpp -o Player.o
+g++ -Wall -Wextra -std=c++11 -Ofast -DRUNNING_WITH_PYTHON_TESTER=1	 -I. -c Ball.cpp -o Ball.o
+g++ -Wall -Wextra -std=c++11 -Ofast -DRUNNING_WITH_PYTHON_TESTER=1	 -I. -c main.cpp -o main.o
+g++ -Wall -Wextra -std=c++11 -Ofast -DRUNNING_WITH_PYTHON_TESTER=1	 io.o Screen.o Player.o Ball.o main.o -o game
+mkdir -p AppImageBuild/usr/bin/pexpect49
+cp /u/course/ece244i/public/2/common/tester/downloads/pexpect/* AppImageBuild/usr/bin/pexpect49
+mkdir -p AppImageBuild/usr/bin/ptyprocess
+cp /u/course/ece244i/public/2/common/tester/downloads/ptyprocess/* AppImageBuild/usr/bin/ptyprocess
+mkdir -p AppImageBuild/usr/bin/reference_solution_outputs
+cp -r /u/course/ece244i/public/2/common/tester/reference_solution_outputs/* AppImageBuild/usr/bin/reference_solution_outputs/
+mkdir -p AppImageBuild/usr/bin
+cp game AppImageBuild/usr/bin
+cp /u/course/ece244i/public/2/common/tester/tester_with_ece244i.py AppImageBuild/usr/bin
+cp /u/course/ece244i/public/2/common/tester/tester.py AppImageBuild/usr/bin
+chmod +x AppImageBuild/usr/bin/game
+chmod +x AppImageBuild/usr/bin/tester_with_ece244i.py
+chmod +x AppImageBuild/usr/bin/tester.py
+cp /u/course/ece244i/public/2/common/tester/downloads/app.png AppImageBuild/app.png
+# wget -O AppImageBuild/app.png https://upload.wikimedia.org/wikipedia/commons/3/3e/Tree-256x256.png
+echo "[Desktop Entry]" > AppImageBuild/autotester.desktop
+echo "Name=autotester" >> AppImageBuild/autotester.desktop
+echo "Exec=doesNotMatterLol" >> AppImageBuild/autotester.desktop
+echo "Icon=app" >> AppImageBuild/autotester.desktop
+echo "Type=Application" >> AppImageBuild/autotester.desktop
+echo "Categories=Utility;" >> AppImageBuild/autotester.desktop
+echo "#!/bin/bash" > AppImageBuild/AppRun
+echo "HERE=\$(dirname \"\$(readlink -f \"\$0\")\")" >> AppImageBuild/AppRun
+echo "exec python3.12 \"\$HERE/usr/bin/tester_with_ece244i.py\" \"\$@\"" >> AppImageBuild/AppRun
+chmod +x AppImageBuild/AppRun
+if [ ! -x /u/course/ece244i/public/2/common/tester/downloads/appimagetool-x86_64.AppImage ]; then \
+	chmod +x /u/course/ece244i/public/2/common/tester/downloads/appimagetool-x86_64.AppImage; \
+fi
+ARCH=x86_64 /u/course/ece244i/public/2/common/tester/downloads/appimagetool-x86_64.AppImage AppImageBuild
+WARNING: appstreamcli command is missing, please install it if you want to use AppStream metadata
+Parallel mksquashfs: Using 80 processors
+Creating 4.0 filesystem on autotester-x86_64.AppImage, block size 131072.
+
+[=================================================================|] 43/43 100%
+
+Exportable Squashfs 4.0 filesystem, gzip compressed, data block size 131072
+	compressed data, compressed metadata, compressed fragments,
+	compressed xattrs, compressed ids
+	duplicates are removed
+Filesystem size 135.25 Kbytes (0.13 Mbytes)
+	18.000f uncompressed filesystem size (751.37 Kbytes)
+Inode table size 514 bytes (0.50 Kbytes)
+	32.590f uncompressed inode table size (1577 bytes)
+Directory table size 620 bytes (0.61 Kbytes)
+	40.600f uncompressed directory table size (1527 bytes)
+Number of duplicate files found 0
+Number of inodes 49
+Number of files 42
+Number of fragments 6
+Number of symbolic links  1
+Number of device nodes 0
+Number of fifo nodes 0
+Number of socket nodes 0
+Number of directories 6
+Number of ids (unique uids + gids) 1
+Number of uids 1
+	root (0)
+Number of gids 1
+	root (0)
+/tmp/WjtB5d7m_G/AppImageBuild should be packaged as autotester-x86_64.AppImage
+mv autotester-x86_64.AppImage autotester
+===========BUILD SUCCESS===========
+Please use this command to run the autotester: ./autotester
+------------------------------------------------------------------
+The build appears to have been successful
+
+Running exercise on the produced executable 'autotester'
+############### Testcase 1 Results ##########################
+Functionality: PASS - Output matches solution
+############### Testcase 2 Results ##########################
+Functionality: PASS - Output matches solution
+############### Testcase 3 Results ##########################
+Functionality: PASS - Output matches solution
+############### Testcase 4 Results ##########################
+Functionality: PASS - Output matches solution
+############### Testcase 5 Results ##########################
+Functionality: PASS - Output matches solution
+############### Testcase 6 Results ##########################
+Functionality: PASS - Output matches solution
+############### Testcase 7 Results ##########################
+Functionality: PASS - Output matches solution
+################# Summary for 7 test(s) #####################
+Functionality: PASS: All tests passed
+
+The required files passed exercise
+
+Submitting files
+
+Verifying submission
+submitece244f -l 2
+total 12
+-rw-r----- 1 submit ece244gp 3561 Sep 27 12:26 Ball.cpp
+-rw-r----- 1 submit ece244gp 3668 Sep 27 12:26 main.cpp
+-rw-r----- 1 submit ece244gp 1225 Sep 27 12:26 Player.cpp
+
+All filesizes match. All timestamps match submission time.
+
+Submission was successful
+
