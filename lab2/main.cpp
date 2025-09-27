@@ -80,7 +80,7 @@ int main() {
             }
 
             // Every 5 hits, add a new ball (max 5 balls)
-            if (score % 5 == 0) {
+            if (score % 5 == 0 && ballCount < max_ballCount) {
               balls_array[ballCount] = Ball(30.0, 30.0, 0.9, 0, ballCount);
               ballCount++;
 
@@ -98,9 +98,8 @@ int main() {
         }
 
         // check if ball hit left wall (game ends)
-        if (balls_array[i].getX() <= 0.0) {
+        if (balls_array[i].getX() < 0.0) {
           gameEnded = true;
-          // break;  // na
         }
 
         // update ball status after dealing with everything else

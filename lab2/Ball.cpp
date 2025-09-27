@@ -100,7 +100,7 @@ int Ball::overlap(Player& p) {
 void Ball::bounce(Ball arr[], int ballCount, Player player) {
   // check collision with walls
   // Right wall bounce
-  if (x >= WIDTH - 1) {
+  if (x + width >= WIDTH) {
     velocity_x = -velocity_x;
   }
 
@@ -108,7 +108,7 @@ void Ball::bounce(Ball arr[], int ballCount, Player player) {
   //, this logic is implemented in main.cpp
 
   // check vertical
-  if ((y <= 0.0) || y >= HEIGHT - 1.0) {
+  if (y <= 0.0 || (y + height) >= HEIGHT) {
     velocity_y = -velocity_y;
   }
 
