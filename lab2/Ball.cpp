@@ -5,6 +5,8 @@
 //  Created by Fei Mo, 2025/9/15
 
 #include "Ball.h"
+#define BALL_WIDTH 1.0
+#define BALL_HEIGHT 1.0
 
 Ball::Ball() {}
 
@@ -14,8 +16,8 @@ Ball::Ball(double x, double y, double velocity_x, double velocity_y, int id) {
   this->velocity_x = velocity_x;
   this->velocity_y = velocity_y;
   this->id = id;
-  this->width = 1.0;
-  this->height = 1.0;
+  this->width = BALL_WIDTH;
+  this->height = BALL_HEIGHT;
 }
 
 double Ball::getX() { return x; }
@@ -27,8 +29,8 @@ void Ball::update() {
   velocity_y -= 0.02 * timeStep;
 
   // displacement
-  x = x + velocity_x * timeStep;
-  y = y + velocity_y * timeStep;
+  x += velocity_x * timeStep;
+  y += velocity_y * timeStep;
 }
 
 // int Ball::overlap(Ball& b) {
@@ -65,41 +67,40 @@ int Ball::overlap(Ball& b) { return NO_OVERLAP; }
 
 // overlap function for Player
 int Ball::overlap(Player& p) {
-  // ball paras
-  double x1 = getX();
-  double w1 = width;
-  double y1 = y;
-  double h1 = height;
+  double Ball_x1 = x;
+  double Ball_y1 = y;
+  double Ball_x2 = x + width;
+  double Ball_y2 = y + height;
 
-  // paddle paras
-  double x2 = p.getX();
-  double w2 = p.getWidth();
-  double y2 = p.getY();
-  double h2 = p.getHeight();
+  double Player_x1 = p.getX();
+  double Player_y1 = p.getY();
+  double Player_x2 = p.getX() + p.getWidth();
+  double Player_y2 = p.getY() + p.getHeight();
 
-  // they only overlap when in both directions
-  bool bool_x_overlaps = (x1 < x2 + w2 && x1 + w1 > x2);
-  bool bool_y_overlaps = (y1 < y2 + h2 && y1 + h1 > y2);
+  // Calculate overlap amounts
+  double x_overlap =
+      std::min(Player_x2, Ball_x2) - std::max(Player_x1, Ball_x1);
+  double y_overlap =
+      std::min(Player_y2, Ball_y2) - std::max(Player_y1, Ball_y1);
 
-  double x_overlap = 0;
-  double y_overlap = 0;
-
-  if (bool_x_overlaps && bool_y_overlaps) {
-    x_overlap = std::min(x1 + w1 - x2, x2 + w2 - x1);
-    y_overlap = std::min(y1 + h1 - y2, y2 + h2 - y1);
-  }
-
-  if ((x_overlap == 0.0) && (y_overlap == 0.0))
+  // Check if there's actual overlap
+  if (x_overlap >= 0.0 && y_overlap >= 0.0) {
+    // If y_overlap equals ball height, it's horizontal overlap
+    if (y_overlap == height) {
+      return HORIZONTAL_OVERLAP;
+    }
+    // Otherwise, it's vertical overlap
+    return VERTICAL_OVERLAP;
+  } else {
     return NO_OVERLAP;
-  else
-    return (x_overlap > y_overlap) ? HORIZONTAL_OVERLAP : VERTICAL_OVERLAP;
+  }
 }
 
 // bounce function
 void Ball::bounce(Ball arr[], int ballCount, Player player) {
   // check collision with walls
   // Right wall bounce
-  if (x + width >= WIDTH - 1) {
+  if (x >= WIDTH - 1) {
     velocity_x = -velocity_x;
   }
 
@@ -107,7 +108,7 @@ void Ball::bounce(Ball arr[], int ballCount, Player player) {
   //, this logic is implemented in main.cpp
 
   // check vertical
-  if (y <= 0 || y + height >= HEIGHT - 1) {
+  if ((y <= 0.0) || y >= HEIGHT - 1.0) {
     velocity_y = -velocity_y;
   }
 

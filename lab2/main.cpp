@@ -40,14 +40,14 @@ int main() {
 
   Player player = Player(0, 5, 10);
 
-  // array to track previous overlap status for collision detection
-  bool collision[max_ballCount];
-  for (int i = 0; i < max_ballCount; i++) {
-    collision[i] = false;
-  }
-
   while (!gameEnded) {
-    // na
+    // this array will be initialized for each frame rather than one for the
+    // whole game array to track previous overlap status for collision detection
+    bool collision[max_ballCount];
+    for (int i = 0; i < max_ballCount; i++) {
+      collision[i] = false;
+    }
+
     for (int step = 0; step < simulation_fps && !gameEnded; step++) {
       // Handle input
       char input = get_input();
