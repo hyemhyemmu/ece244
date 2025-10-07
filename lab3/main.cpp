@@ -36,6 +36,8 @@ string errorArray[10] = {
     "resistor name cannot be keyword \"all\"",          // 4
     "both terminals of resistor connect to same node",  // 5
     "too few arguments",                                // 6
+    "resistor name already exists"                      // 7
+    // not in original code but exist in doc
 };
 
 // Function Prototypes
@@ -138,16 +140,27 @@ bool getDouble(stringstream& ss, double& d) {
 // Command handler functions
 void handleMaxVal(stringstream& ss) {
   int maxNodes, maxRes;
+  string temp;
 
   // Read maxNodeNumber
   if (!getInteger(ss, maxNodes)) {
-    cout << "Error: " << errorArray[1] << endl;
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
     return;
   }
 
   // Read maxResistors
   if (!getInteger(ss, maxRes)) {
-    cout << "Error: " << errorArray[6] << endl;
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
     return;
   }
 
@@ -199,35 +212,126 @@ void handleInsertR(stringstream& ss) {
   double resistance;
   int nodeid1, nodeid2;
 
-  // TODO: Read name, resistance, nodeid1, nodeid2
+  // Read name
   if (!getString(ss, name)) {
-    cout << "Error: " << errorArray[1] << endl;
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
     return;
   }
 
-  if (!getInteger(ss, )) {
-    cout << "Error: " << errorArray[1] << endl;
+  // Read resistance
+  if (!getDouble(ss, resistance)) {
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
     return;
   }
-  // TODO: Check for errors in this order:
-  //   1. too few arguments
-  //   2. invalid argument
-  //   3. negative resistance
-  //   4. resistor name cannot be keyword "all"
-  //   5. resistor name already exists
-  //   6. node value is out of permitted range (for both nodes)
-  //   7. both terminals of resistor connect to same node
-  //   8. resistorsCount >= maxResistors (need space)
-  //   9. nodes[nodeid1-1].canAddResistor() and
-  //   nodes[nodeid2-1].canAddResistor()
-  // TODO: Create new Resistor object with new
-  // TODO: Add resistor pointer to resistors array
-  // TODO: Call addResistor() on both nodes
-  // TODO: Increment resistorsCount
-  // TODO: Print success message: "Inserted: resistor name resistance Ohms
-  // nodeid1 -> nodeid2"
 
-  cout << "Error: insertR not implemented yet" << endl;
+  // Read nodeid1
+  if (!getInteger(ss, nodeid1)) {
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
+    return;
+  }
+
+  // Read nodeid2
+  if (!getInteger(ss, nodeid2)) {
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
+    return;
+  }
+
+  // Check for negative resistance
+  if (resistance < 0) {
+    cout << "Error: " << errorArray[2] << endl;  // negative resistance
+    return;
+  }
+
+  // Check if name is "all"
+  if (name == "all") {
+    cout << "Error: " << errorArray[4] << endl;  // resistor name  "all"
+    return;
+  }
+
+  // Check if resistor name already exists
+  for (int i = 0; i < resistorsCount; i++) {
+    if (resistors[i] != nullptr && resistors[i]->getName() == name) {
+      cout << "Error: " << errorArray[7] << endl;
+      return;
+    }
+  }
+
+  // Check if node values are in permitted range
+  if (nodeid1 < 1 || nodeid1 > maxNodeNumber) {
+    cout << "Error: " << errorArray[3]
+         << endl;  // node value is out of permitted range
+    return;
+  }
+  if (nodeid2 < 1 || nodeid2 > maxNodeNumber) {
+    cout << "Error: " << errorArray[3]
+         << endl;  // node value is out of permitted range
+    return;
+  }
+
+  // Check if both terminals connect to same node
+  if (nodeid1 == nodeid2) {
+    cout << "Error: " << errorArray[5]
+         << endl;  // both terminals of resistor connect to same node
+    return;
+  }
+
+  // Check if we have space for more resistors
+  if (resistorsCount >= maxResistors) {
+    cout << "Error: resistor array is full" << endl;
+    return;
+  }
+
+  // Check if both nodes can add a resistor
+  if (!nodes[nodeid1 - 1].canAddResistor()) {
+    cout << "Error: node " << nodeid1 << " has too many resistors" << endl;
+    return;
+  }
+  if (!nodes[nodeid2 - 1].canAddResistor()) {
+    cout << "Error: node " << nodeid2 << " has too many resistors" << endl;
+    return;
+  }
+
+  // Create endpoint array (convert to 0-based indices)
+  int endpoints[2];
+  endpoints[0] = nodeid1;  // Keep 1-based for printing
+  endpoints[1] = nodeid2;
+
+  // Create new Resistor object
+  Resistor* newResistor = new Resistor(name, resistance, endpoints);
+
+  // Add resistor pointer to resistors array
+  resistors[resistorsCount] = newResistor;
+
+  // Add resistor to both nodes (using resistorID which is the current count)
+  nodes[nodeid1 - 1].addResistor(resistorsCount);
+  nodes[nodeid2 - 1].addResistor(resistorsCount);
+
+  // Increment resistorsCount
+  resistorsCount++;
+
+  // Print success message
+  cout << "Inserted: resistor " << name << " " << fixed << setprecision(2)
+       << resistance << " Ohms " << nodeid1 << " -> " << nodeid2 << endl;
 }
 
 void handleModifyR(stringstream& ss) {
