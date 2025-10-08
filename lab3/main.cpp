@@ -332,8 +332,8 @@ void handleInsertR(stringstream& ss) {
   resistorsCount++;
 
   // Print success message
-  cout << "Inserted: resistor " << name << " " << fixed << resistance
-       << " Ohms " << nodeid1 << " -> " << nodeid2 << endl;
+  cout << "Inserted: resistor " << name << " " << fixed << setprecision(2)
+       << resistance << " Ohms " << nodeid1 << " -> " << nodeid2 << endl;
 }
 
 void handleModifyR(stringstream& ss) {
@@ -397,8 +397,8 @@ void handleModifyR(stringstream& ss) {
   resistors[idx]->setResistance(newResistance);
 
   // Print success message
-  cout << "Modified: resistor " << name << " from " << oldResistance
-       << " Ohms to " << newResistance << " Ohms" << endl;
+  cout << "Modified: resistor " << name << " from " << fixed << setprecision(2)
+       << oldResistance << " Ohms to " << newResistance << " Ohms" << endl;
 }
 
 void handlePrintR(stringstream& ss) {
@@ -513,7 +513,8 @@ void handleSetV(stringstream& ss) {
   nodes[nodeid - 1].setVoltage(voltage);
 
   // Print success message
-  cout << "Set: node " << nodeid << " to " << voltage << " Volts" << endl;
+  cout << "Set: node " << nodeid << " to " << fixed << setprecision(2)
+       << voltage << " Volts" << endl;
 }
 
 void handleSolve() {
@@ -598,8 +599,8 @@ void handleSolve() {
   // Print nodes in ascending order that have at least one resistor connected
   for (int i = 0; i < maxNodeNumber; i++) {
     if (nodes[i].getNumRes() > 0) {
-      cout << "Node " << (i + 1) << ": " << nodes[i].getVoltage() << " V"
-           << endl;
+      cout << "Node " << (i + 1) << ": " << fixed << setprecision(2)
+           << nodes[i].getVoltage() << " V" << endl;
     }
   }
 }

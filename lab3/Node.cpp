@@ -20,7 +20,7 @@ Node::Node() {
 bool Node::canAddResistor() { return (numRes < MAX_RESISTORS_PER_NODE); }
 
 void Node::addResistor(int rIndex) {
-  if (canAddResistor) {
+  if (canAddResistor()) {
     resIDArray[numRes] = rIndex;
     numRes++;
   } else {
