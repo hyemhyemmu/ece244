@@ -41,7 +41,8 @@ void Node::setVoltage(double voltage_) {
 // returns voltageIsSet
 void Node::setVoltageInternally(double voltage_) {
   voltage = voltage_;
-  voltageIsSet = true;
+  // Note: NOT set voltageIsSet to true - for internal iterations
+  // only
 }
 
 bool Node::isVoltageSet() { return voltageIsSet; }

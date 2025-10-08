@@ -36,8 +36,8 @@ string errorArray[10] = {
     "resistor name cannot be keyword \"all\"",          // 4
     "both terminals of resistor connect to same node",  // 5
     "too few arguments",                                // 6
-    "resistor name already exists"                      // 7
-    // not in original code but exist in doc
+    "resistor name already exists",                     // 7
+    "resistor name not found "                          // 8
 };
 
 // Function Prototypes
@@ -51,6 +51,7 @@ void handleModifyR(stringstream& ss);
 void handlePrintR(stringstream& ss);
 void handleDeleteR(stringstream& ss);
 void handleSetV(stringstream& ss);
+void handleSolve();
 
 int main() {
   string line;
@@ -86,8 +87,7 @@ int main() {
     } else if (command == "setV") {
       handleSetV(ss);
     } else if (command == "solve") {
-      // TODO: Implement solve command
-      cout << "Error: solve not implemented yet" << endl;
+      handleSolve();
     } else {
       // Invalid command
       cout << "Error: " << errorArray[0] << endl;
@@ -301,15 +301,17 @@ void handleInsertR(stringstream& ss) {
     return;
   }
 
-  // Check if both nodes can add a resistor
-  if (!nodes[nodeid1 - 1].canAddResistor()) {
-    cout << "Error: node " << nodeid1 << " has too many resistors" << endl;
-    return;
-  }
-  if (!nodes[nodeid2 - 1].canAddResistor()) {
-    cout << "Error: node " << nodeid2 << " has too many resistors" << endl;
-    return;
-  }
+  // I think this should be checked, but the doc says to ignore
+  // errors other than the list
+  // // Check if both nodes can add a resistor
+  // if (!nodes[nodeid1 - 1].canAddResistor()) {
+  //   cout << "Error: node " << nodeid1 << " has too many resistors" << endl;
+  //   return;
+  // }
+  // if (!nodes[nodeid2 - 1].canAddResistor()) {
+  //   cout << "Error: node " << nodeid2 << " has too many resistors" << endl;
+  //   return;
+  // }
 
   // Create endpoint array (convert to 0-based indices)
   int endpoints[2];
@@ -330,69 +332,274 @@ void handleInsertR(stringstream& ss) {
   resistorsCount++;
 
   // Print success message
-  cout << "Inserted: resistor " << name << " " << fixed << setprecision(2)
-       << resistance << " Ohms " << nodeid1 << " -> " << nodeid2 << endl;
+  cout << "Inserted: resistor " << name << " " << fixed << resistance
+       << " Ohms " << nodeid1 << " -> " << nodeid2 << endl;
 }
 
 void handleModifyR(stringstream& ss) {
   string name;
   double newResistance;
 
-  // TODO: Read name and newResistance
-  // TODO: Check for errors:
-  //   1. too few arguments
-  //   2. invalid argument
-  //   3. negative resistance
-  //   4. resistor name cannot be keyword "all"
-  //   5. resistor name not found
-  // TODO: Get old resistance value
-  // TODO: Call setResistance() to update
-  // TODO: Print success message: "Modified: resistor name from oldResistance
-  // Ohms to newResistance Ohms"
+  // Read name
+  if (!getString(ss, name)) {
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
+    return;
+  }
 
-  cout << "Error: modifyR not implemented yet" << endl;
+  // Read newResistance
+  if (!getDouble(ss, newResistance)) {
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
+    return;
+  }
+
+  // Check for negative resistance
+  if (newResistance < 0) {
+    cout << "Error: " << errorArray[2] << endl;  // negative resistance
+    return;
+  }
+
+  // Check if name is "all"
+  if (name == "all") {
+    cout << "Error: " << errorArray[4]
+         << endl;  // resistor name cannot be keyword "all"
+    return;
+  }
+
+  // Find the resistor by name
+  int idx = -1;
+  for (int i = 0; i < resistorsCount; i++) {
+    if (resistors[i] != nullptr && resistors[i]->getName() == name) {
+      idx = i;
+      break;
+    }
+  }
+
+  // Check if resistor was found
+  if (idx == -1) {
+    cout << "Error: " << errorArray[8] << endl;  // name not found
+    return;
+  }
+
+  // Get old resistance value
+  double oldResistance = resistors[idx]->getResistance();
+
+  // Update resistance
+  resistors[idx]->setResistance(newResistance);
+
+  // Print success message
+  cout << "Modified: resistor " << name << " from " << oldResistance
+       << " Ohms to " << newResistance << " Ohms" << endl;
 }
 
 void handlePrintR(stringstream& ss) {
   string name;
 
-  // TODO: Read name
-  // TODO: Check for errors:
-  //   1. too few arguments
-  //   2. invalid argument
-  //   3. resistor name not found
-  // TODO: Find the resistor in the array
-  // TODO: Print "Print: resistor " and then call resistor->print()
+  // Read name
+  if (!getString(ss, name)) {
+    // Check
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
+    return;
+  }
 
-  cout << "Error: printR not implemented yet" << endl;
+  // Find the resistor by name
+  int idx = -1;
+  for (int i = 0; i < resistorsCount; i++) {
+    if (resistors[i] != nullptr && resistors[i]->getName() == name) {
+      idx = i;
+      break;
+    }
+  }
+
+  // Check if resistor was found
+  if (idx == -1) {
+    cout << "Error: " << errorArray[8] << endl;  // resistor name not found
+    return;
+  }
+
+  // Print resistor information
+  cout << "Print:" << endl;
+  resistors[idx]->print();
 }
 
 void handleDeleteR(stringstream& ss) {
   string arg;
 
-  // TODO: Read argument (should be "all")
-  // TODO: Check for errors:
-  //   1. too few arguments
-  //   2. invalid argument (if not "all")
-  // TODO: Delete all resistor objects
-  // TODO: Reset resistorsCount to 0
-  // TODO: Reset all nodes (set numRes to 0)
-  // TODO: Print success message: "Deleted: all resistors"
+  // Read argument (should be "all")
+  if (!getString(ss, arg)) {
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
+    return;
+  }
 
-  cout << "Error: deleteR not implemented yet" << endl;
+  // Check if argument is "all"
+  if (arg != "all") {
+    cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    return;
+  }
+
+  // Delete all resistor objects
+  for (int i = 0; i < resistorsCount; i++) {
+    if (resistors[i] != nullptr) {
+      delete resistors[i];
+      resistors[i] = nullptr;
+    }
+  }
+
+  // Reset resistorsCount to 0
+  resistorsCount = 0;
+
+  // Reset all nodes (set numRes to 0)
+  for (int i = 0; i < maxNodeNumber; i++) {
+    // Reset the node by recreating it
+    nodes[i] = Node();
+  }
+
+  // Print success message
+  cout << "Deleted: all resistors" << endl;
 }
 
 void handleSetV(stringstream& ss) {
   int nodeid;
   double voltage;
 
-  // TODO: Read nodeid and voltage
-  // TODO: Check for errors:
-  //   1. too few arguments
-  //   2. invalid argument
-  //   3. node value is out of permitted range
-  // TODO: Call nodes[nodeid-1].setVoltage(voltage)
-  // TODO: Print success message: "Set: node nodeid to voltage Volts"
+  // Read nodeid
+  if (!getInteger(ss, nodeid)) {
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
+    return;
+  }
 
-  cout << "Error: setV not implemented yet" << endl;
+  // Read voltage
+  if (!getDouble(ss, voltage)) {
+    // Check if it's missing or wrong type
+    if (ss.eof()) {
+      cout << "Error: " << errorArray[6] << endl;  // too few arguments
+    } else {
+      cout << "Error: " << errorArray[1] << endl;  // invalid argument
+    }
+    return;
+  }
+
+  // Check if node value is in permitted range
+  if (nodeid < 1 || nodeid > maxNodeNumber) {
+    cout << "Error: " << errorArray[3]
+         << endl;  // node value is out of permitted range
+    return;
+  }
+
+  // Set voltage for the node (index different)
+  nodes[nodeid - 1].setVoltage(voltage);
+
+  // Print success message
+  cout << "Set: node " << nodeid << " to " << voltage << " Volts" << endl;
+}
+
+void handleSolve() {
+  const double MIN_ITERATION_CHANGE = 0.0001;
+  const int MAX_ITERATIONS = 100000;  // Safety limit to prevent infinite loops
+
+  // Step 1: Initialize all nodes without set voltage to 0
+  for (int i = 0; i < maxNodeNumber; i++) {
+    if (!nodes[i].isVoltageSet()) {
+      nodes[i].setVoltageInternally(0.0);
+    }
+  }
+
+  // Step 2: Iterate
+  bool converged = false;
+  int iteration = 0;
+
+  while (!converged && iteration < MAX_ITERATIONS) {
+    converged = true;  // Assume convergence, will be set to false if any node
+                       // changes significantly
+    iteration++;
+
+    // For each node without a set voltage
+    for (int nodeIndex = 0; nodeIndex < maxNodeNumber; nodeIndex++) {
+      if (!nodes[nodeIndex].isVoltageSet()) {
+        // Get the resistors connected to this node
+        int numRes = nodes[nodeIndex].getNumRes();
+        int* resIDArray = nodes[nodeIndex].getResIDArray();
+
+        // Calculate new voltage using Eq. 3
+        if (numRes > 0) {
+          double sumVoltageOverR = 0.0;
+          double sumOneOverR = 0.0;
+
+          // Sum up contributions from all connected resistors
+          for (int j = 0; j < numRes; j++) {
+            int resistorID = resIDArray[j];
+            if (resistors[resistorID] != nullptr) {
+              double resistance = resistors[resistorID]->getResistance();
+
+              // Get the other endpoint (neighbor node)
+              // nodeIndex is 0-based, but endpoint IDs are 1-based
+              int otherNodeID =
+                  resistors[resistorID]->getOtherEndpoint(nodeIndex + 1);
+
+              if (otherNodeID != -1) {
+                // Convert to 0-based index
+                int otherNodeIndex = otherNodeID - 1;
+                double neighborVoltage = nodes[otherNodeIndex].getVoltage();
+
+                sumVoltageOverR += neighborVoltage / resistance;
+                sumOneOverR += 1.0 / resistance;
+              }
+            }
+          }
+
+          // Calculate new voltage: V0 = (1 / sum(1/R)) * sum(V/R)
+          double newVoltage = 0.0;
+          if (sumOneOverR != 0.0) {
+            newVoltage = sumVoltageOverR / sumOneOverR;
+          }
+
+          // Check if voltage changed significantly
+          double oldVoltage = nodes[nodeIndex].getVoltage();
+          double change = (newVoltage - oldVoltage);
+          if (change < 0) change = -change;  // Absolute value
+
+          if (change > MIN_ITERATION_CHANGE) {
+            converged = false;
+          }
+
+          // Update voltage
+          nodes[nodeIndex].setVoltageInternally(newVoltage);
+        }
+      }
+    }
+  }
+
+  // Step 3: Print results
+  cout << "Solve:" << endl;
+
+  // Print nodes in ascending order that have at least one resistor connected
+  for (int i = 0; i < maxNodeNumber; i++) {
+    if (nodes[i].getNumRes() > 0) {
+      cout << "Node " << (i + 1) << ": " << nodes[i].getVoltage() << " V"
+           << endl;
+    }
+  }
 }
