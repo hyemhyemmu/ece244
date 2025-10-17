@@ -98,7 +98,7 @@ int main() {
     cout.flush();
   }
 
-  // Clean up: delete dynamically allocated arrays
+  // clean old stuff
   if (resistors != nullptr) {
     for (int i = 0; i < resistorsCount; i++) {
       delete resistors[i];
@@ -137,14 +137,13 @@ bool getDouble(stringstream& ss, double& d) {
   return true;
 }
 
-// Command handler functions
+// command handler
 void handleMaxVal(stringstream& ss) {
   int maxNodes, maxRes;
   string temp;
 
   // Read maxNodeNumber
   if (!getInteger(ss, maxNodes)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -155,7 +154,6 @@ void handleMaxVal(stringstream& ss) {
 
   // Read maxResistors
   if (!getInteger(ss, maxRes)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -164,7 +162,6 @@ void handleMaxVal(stringstream& ss) {
     return;
   }
 
-  // Check if maxNodes and maxRes are positive
   if (maxNodes <= 0 || maxRes <= 0) {
     cout << "Error: " << errorArray[1] << endl;
     return;
@@ -186,7 +183,7 @@ void handleMaxVal(stringstream& ss) {
     nodes = nullptr;
   }
 
-  // Update global variables
+  // Update
   maxNodeNumber = maxNodes;
   maxResistors = maxRes;
 
@@ -194,15 +191,12 @@ void handleMaxVal(stringstream& ss) {
   nodes = new Node[maxNodeNumber];
   resistors = new Resistor*[maxResistors];
 
-  // Initialize resistor pointers to nullptr
+  // Initialize
   for (int i = 0; i < maxResistors; i++) {
     resistors[i] = nullptr;
   }
-
-  // Initialize resistorsCount to 0
   resistorsCount = 0;
 
-  // Print success message
   cout << "New network: max node number is " << maxNodeNumber
        << "; max resistors is " << maxResistors << endl;
 }
@@ -214,7 +208,6 @@ void handleInsertR(stringstream& ss) {
 
   // Read name
   if (!getString(ss, name)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -225,7 +218,6 @@ void handleInsertR(stringstream& ss) {
 
   // Read resistance
   if (!getDouble(ss, resistance)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -236,7 +228,6 @@ void handleInsertR(stringstream& ss) {
 
   // Read nodeid1
   if (!getInteger(ss, nodeid1)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -247,7 +238,6 @@ void handleInsertR(stringstream& ss) {
 
   // Read nodeid2
   if (!getInteger(ss, nodeid2)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -331,7 +321,6 @@ void handleInsertR(stringstream& ss) {
   // Increment resistorsCount
   resistorsCount++;
 
-  // Print success message
   cout << "Inserted: resistor " << name << " " << fixed << setprecision(2)
        << resistance << " Ohms " << nodeid1 << " -> " << nodeid2 << endl;
 }
@@ -342,7 +331,6 @@ void handleModifyR(stringstream& ss) {
 
   // Read name
   if (!getString(ss, name)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -353,7 +341,6 @@ void handleModifyR(stringstream& ss) {
 
   // Read newResistance
   if (!getDouble(ss, newResistance)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -396,7 +383,6 @@ void handleModifyR(stringstream& ss) {
   // Update resistance
   resistors[idx]->setResistance(newResistance);
 
-  // Print success message
   cout << "Modified: resistor " << name << " from " << fixed << setprecision(2)
        << oldResistance << " Ohms to " << newResistance << " Ohms" << endl;
 }
@@ -440,7 +426,6 @@ void handleDeleteR(stringstream& ss) {
 
   // Read argument (should be "all")
   if (!getString(ss, arg)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -472,7 +457,6 @@ void handleDeleteR(stringstream& ss) {
     nodes[i] = Node();
   }
 
-  // Print success message
   cout << "Deleted: all resistors" << endl;
 }
 
@@ -482,7 +466,6 @@ void handleSetV(stringstream& ss) {
 
   // Read nodeid
   if (!getInteger(ss, nodeid)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -493,7 +476,6 @@ void handleSetV(stringstream& ss) {
 
   // Read voltage
   if (!getDouble(ss, voltage)) {
-    // Check if it's missing or wrong type
     if (ss.eof()) {
       cout << "Error: " << errorArray[6] << endl;  // too few arguments
     } else {
@@ -512,7 +494,6 @@ void handleSetV(stringstream& ss) {
   // Set voltage for the node (index different)
   nodes[nodeid - 1].setVoltage(voltage);
 
-  // Print success message
   cout << "Set: node " << nodeid << " to " << fixed << setprecision(2)
        << voltage << " Volts" << endl;
 }
