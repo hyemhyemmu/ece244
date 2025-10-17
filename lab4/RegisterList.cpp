@@ -12,37 +12,70 @@ RegisterList::RegisterList() {
 
 RegisterList::~RegisterList() {
   // Delete all registers in the list
+  Register* curr = head;
+  for (int i = 0; i < size; i++) {
+    Register* next = curr->get_next();
+    delete curr->get_queue_list();
+    delete curr;
+    curr = next;
+  }
 }
 
-Register* RegisterList::get_head() {  }
+Register* RegisterList::get_head() { return head; }
 
-int RegisterList::get_size() { 
-  // return number of registers 
+int RegisterList::get_size() {
+  // return number of registers
+  return size;
 }
-
 
 Register* RegisterList::get_min_items_register() {
   // loop all registers to find the register with least number of items
-  
+  if (head == nullptr) {
+    return nullptr;
+  }
+
+  Register* min_ptr = head;
+  int min = head->get_queue_list()->get_items();
+  Register* curr = head->get_next();
+
+  while (curr != nullptr) {
+    int items = curr->get_queue_list()->get_items();
+    if (items < min) {
+      min = items;
+      min_ptr = curr;
+    }
+    curr = curr->get_next();
+  }
+
+  return min_ptr;
 }
 
 Register* RegisterList::get_free_register() {
   // return the register with no customers
   // if all registers are occupied, return nullptr
+  if (head == nullptr) {
+    return nullptr;
+  }
+
+  Register* curr = head;
+  while (curr != nullptr) {
+    if (curr->get_queue_list()->get_head() == 0) {
+      return curr;
+    }
+  }
+  return nullptr;
 }
 
 void RegisterList::enqueue(Register* newRegister) {
   // a register is placed at the end of the queue
   // if the register's list is empty, the register becomes the head
   // Assume the next of the newRegister is set to null
-  // You will have to increment size 
-  
+  // You will have to increment size
 }
 
 bool RegisterList::foundRegister(int ID) {
   // look for a register with the given ID
   // return true if found, false otherwise
-
 }
 
 Register* RegisterList::dequeue(int ID) {
