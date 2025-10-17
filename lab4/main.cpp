@@ -27,6 +27,9 @@ void closeRegister(stringstream& lineStream,
 void addCustomer(stringstream& lineStream,
                  string mode);  // customer wants to join
 
+// Depart customers
+void departCustomers(string mode);
+
 // Helper functions
 bool getInt(stringstream& lineStream, int& iValue);
 bool getDouble(stringstream& lineStream, double& dValue);
@@ -156,24 +159,7 @@ string getMode() {
   return mode;
 }
 
-void addCustomer(stringstream& lineStream, string mode) {
-  int items;
-  double timeElapsed;
-  if (!getInt(lineStream, items) || !getDouble(lineStream, timeElapsed)) {
-    cout << "Error: too few arguments." << endl;
-    return;
-  }
-  if (foundMoreArgs(lineStream)) {
-    cout << "Error: too many arguments." << endl;
-    return;
-  }
-  // Depending on the mode of the simulation (single or multiple),
-  // add the customer to the single queue or to the register with
-  // fewest items
-
-  // Update system time
-  expTimeElapsed += timeElapsed;
-
+void departCustomers(string mode) {
   // Depart customers whose time has come
   while (true) {
     Register* minReg =
@@ -194,21 +180,30 @@ void addCustomer(stringstream& lineStream, string mode) {
     if (mode == "single" && singleQueue->get_head() != nullptr) {
       Customer* nextCustomer = singleQueue->dequeue();
       minReg->get_queue_list()->enqueue(nextCustomer);
-
-      // Calculate departure time for the new customer
-      double processingTime =
-          minReg->get_secPerItem() * nextCustomer->get_numOfItems() +
-          minReg->get_overheadPerCustomer();
-      double newDepartTime;
-      if (nextCustomer->get_arrivalTime() > minReg->get_availableTime()) {
-        newDepartTime = nextCustomer->get_arrivalTime() + processingTime;
-      } else {
-        newDepartTime = minReg->get_availableTime() + processingTime;
-      }
-      nextCustomer->set_departureTime(newDepartTime);
+      // Departure time will be calculated by calculateDepartTime()
     }
   }
+}
 
+void addCustomer(stringstream& lineStream, string mode) {
+  int items;
+  double timeElapsed;
+  if (!getInt(lineStream, items) || !getDouble(lineStream, timeElapsed)) {
+    cout << "Error: too few arguments." << endl;
+    return;
+  }
+  if (foundMoreArgs(lineStream)) {
+    cout << "Error: too many arguments." << endl;
+    return;
+  }
+
+  // Update system time
+  expTimeElapsed += timeElapsed;
+
+  // Depart customers whose time has come
+  departCustomers(mode);
+
+  // Add new customer
   Customer* newCustomer = new Customer(expTimeElapsed, items);
   cout << "A customer entered" << endl;
 
@@ -219,18 +214,6 @@ void addCustomer(stringstream& lineStream, string mode) {
       freeReg->get_queue_list()->enqueue(newCustomer);
       cout << "Queued a customer with free register " << freeReg->get_ID()
            << endl;
-
-      // Calculate departure time
-      double processingTime =
-          freeReg->get_secPerItem() * newCustomer->get_numOfItems() +
-          freeReg->get_overheadPerCustomer();
-      double departTime;
-      if (newCustomer->get_arrivalTime() > freeReg->get_availableTime()) {
-        departTime = newCustomer->get_arrivalTime() + processingTime;
-      } else {
-        departTime = freeReg->get_availableTime() + processingTime;
-      }
-      newCustomer->set_departureTime(departTime);
     } else {
       singleQueue->enqueue(newCustomer);
       cout << "No free registers" << endl;
@@ -240,24 +223,6 @@ void addCustomer(stringstream& lineStream, string mode) {
     Register* minReg = registerList->get_min_items_register();
     if (minReg != nullptr) {
       minReg->get_queue_list()->enqueue(newCustomer);
-
-      // Calculate departure time
-      Customer* queueHead = minReg->get_queue_list()->get_head();
-      if (queueHead == newCustomer) {
-        // This is the only customer, calculate based on register available time
-        double processingTime =
-            minReg->get_secPerItem() * newCustomer->get_numOfItems() +
-            minReg->get_overheadPerCustomer();
-        double departTime;
-        if (newCustomer->get_arrivalTime() > minReg->get_availableTime()) {
-          departTime = newCustomer->get_arrivalTime() + processingTime;
-        } else {
-          departTime = minReg->get_availableTime() + processingTime;
-        }
-        newCustomer->set_departureTime(departTime);
-      }
-      // If not the head, departure time will be calculated when they become
-      // head
     }
   }
 }
@@ -299,39 +264,7 @@ void openRegister(stringstream& lineStream, string mode) {
   expTimeElapsed += timeElapsed;
 
   // Depart customers whose time has come
-  while (true) {
-    Register* minReg =
-        registerList->calculateMinDepartTimeRegister(expTimeElapsed);
-    if (minReg == nullptr) break;
-
-    Customer* customer = minReg->get_queue_list()->get_head();
-    if (customer == nullptr) break;
-
-    double departTime = minReg->calculateDepartTime();
-    if (departTime > expTimeElapsed) break;
-
-    cout << "Departed a customer at register ID " << minReg->get_ID() << " at "
-         << departTime << endl;
-    minReg->departCustomer(doneList);
-
-    // In single queue mode, assign next customer from single queue
-    if (mode == "single" && singleQueue->get_head() != nullptr) {
-      Customer* nextCustomer = singleQueue->dequeue();
-      minReg->get_queue_list()->enqueue(nextCustomer);
-
-      // Calculate departure time for the new customer
-      double processingTime =
-          minReg->get_secPerItem() * nextCustomer->get_numOfItems() +
-          minReg->get_overheadPerCustomer();
-      double newDepartTime;
-      if (nextCustomer->get_arrivalTime() > minReg->get_availableTime()) {
-        newDepartTime = nextCustomer->get_arrivalTime() + processingTime;
-      } else {
-        newDepartTime = minReg->get_availableTime() + processingTime;
-      }
-      nextCustomer->set_departureTime(newDepartTime);
-    }
-  }
+  departCustomers(mode);
 
   // Open the register
   Register* newRegister =
@@ -346,18 +279,6 @@ void openRegister(stringstream& lineStream, string mode) {
     Customer* customer = singleQueue->dequeue();
     newRegister->get_queue_list()->enqueue(customer);
     cout << "Queued a customer with free register " << ID << endl;
-
-    // Calculate departure time for this customer
-    double processingTime =
-        newRegister->get_secPerItem() * customer->get_numOfItems() +
-        newRegister->get_overheadPerCustomer();
-    double departTime;
-    if (customer->get_arrivalTime() > newRegister->get_availableTime()) {
-      departTime = customer->get_arrivalTime() + processingTime;
-    } else {
-      departTime = newRegister->get_availableTime() + processingTime;
-    }
-    customer->set_departureTime(departTime);
   }
 }
 
@@ -386,39 +307,7 @@ void closeRegister(stringstream& lineStream, string mode) {
   expTimeElapsed += timeElapsed;
 
   // Depart customers whose time has come
-  while (true) {
-    Register* minReg =
-        registerList->calculateMinDepartTimeRegister(expTimeElapsed);
-    if (minReg == nullptr) break;
-
-    Customer* customer = minReg->get_queue_list()->get_head();
-    if (customer == nullptr) break;
-
-    double departTime = minReg->calculateDepartTime();
-    if (departTime > expTimeElapsed) break;
-
-    cout << "Departed a customer at register ID " << minReg->get_ID() << " at "
-         << departTime << endl;
-    minReg->departCustomer(doneList);
-
-    // In single queue mode, assign next customer from single queue
-    if (mode == "single" && singleQueue->get_head() != nullptr) {
-      Customer* nextCustomer = singleQueue->dequeue();
-      minReg->get_queue_list()->enqueue(nextCustomer);
-
-      // Calculate departure time for the new customer
-      double processingTime =
-          minReg->get_secPerItem() * nextCustomer->get_numOfItems() +
-          minReg->get_overheadPerCustomer();
-      double newDepartTime;
-      if (nextCustomer->get_arrivalTime() > minReg->get_availableTime()) {
-        newDepartTime = nextCustomer->get_arrivalTime() + processingTime;
-      } else {
-        newDepartTime = minReg->get_availableTime() + processingTime;
-      }
-      nextCustomer->set_departureTime(newDepartTime);
-    }
-  }
+  departCustomers(mode);
 
   // Dequeue the register from the register list
   Register* closingRegister = registerList->dequeue(ID);
