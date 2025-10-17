@@ -59,9 +59,10 @@ Register* RegisterList::get_free_register() {
 
   Register* curr = head;
   while (curr != nullptr) {
-    if (curr->get_queue_list()->get_head() == 0) {
+    if (curr->get_queue_list()->get_head() == nullptr) {
       return curr;
     }
+    curr = curr->get_next();
   }
   return nullptr;
 }
@@ -71,23 +72,90 @@ void RegisterList::enqueue(Register* newRegister) {
   // if the register's list is empty, the register becomes the head
   // Assume the next of the newRegister is set to null
   // You will have to increment size
+
+  if (head == nullptr) {
+    head = newRegister;
+  } else {
+    // get to the end
+    Register* curr = head;
+    while (curr->get_next() != nullptr) {
+      curr = curr->get_next();
+    }
+    curr->set_next(newRegister);
+  }
+  size++;
 }
 
 bool RegisterList::foundRegister(int ID) {
   // look for a register with the given ID
   // return true if found, false otherwise
+  if (head == nullptr) {
+    return false;
+  } else {
+    Register* curr = head;
+    while (curr != nullptr) {
+      if (curr->get_ID() == ID) {
+        return true;
+      }
+      curr = curr->get_next();
+    }
+  }
+  return false;
 }
 
 Register* RegisterList::dequeue(int ID) {
   // dequeue the register with given ID
-
   // return the dequeued register
   // return nullptr if register was not found
+  if (head == nullptr) {
+    return nullptr;
+  }
+
+  if (head->get_ID() == ID) {
+    Register* temp = head;
+    head = head->get_next();
+    size--;
+    return temp;
+  }
+
+  Register* prev = head;
+  Register* curr = head->get_next();
+  while (curr != nullptr) {
+    if (curr->get_ID() == ID) {
+      prev->set_next(curr->get_next());
+      size--;
+      return curr;
+    }
+    prev = curr;
+    curr = curr->get_next();
+  }
+
+  return nullptr;
 }
 
 Register* RegisterList::calculateMinDepartTimeRegister(double expTimeElapsed) {
   // return the register with minimum time of departure of its customer
   // if all registers are free, return nullptr
+  if (head == nullptr) {
+    return nullptr;
+  }
+
+  Register* minRegister = nullptr;
+  double minDepartTime = -1;
+  Register* curr = head;
+
+  while (curr != nullptr) {
+    if (curr->get_queue_list()->get_head() != nullptr) {
+      double departTime = curr->calculateDepartTime();
+      if (minRegister == nullptr || departTime < minDepartTime) {
+        minDepartTime = departTime;
+        minRegister = curr;
+      }
+    }
+    curr = curr->get_next();
+  }
+
+  return minRegister;
 }
 
 void RegisterList::print() {

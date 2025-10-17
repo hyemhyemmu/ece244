@@ -16,28 +16,27 @@ using namespace std;
 string getMode();
 
 // Register
-void parseRegisterAction(stringstream &lineStream, string mode);
+void parseRegisterAction(stringstream& lineStream, string mode);
 void openRegister(
-    stringstream &lineStream,
+    stringstream& lineStream,
     string mode);  // register opens (it is upto customers to join)
-void closeRegister(stringstream &lineStream,
-                   string mode);  // register closes 
+void closeRegister(stringstream& lineStream,
+                   string mode);  // register closes
 
 // Customer
-void addCustomer(stringstream &lineStream,
+void addCustomer(stringstream& lineStream,
                  string mode);  // customer wants to join
 
-
 // Helper functions
-bool getInt(stringstream &lineStream, int &iValue);
-bool getDouble(stringstream &lineStream, double &dValue);
-bool foundMoreArgs(stringstream &lineStream);
+bool getInt(stringstream& lineStream, int& iValue);
+bool getDouble(stringstream& lineStream, double& dValue);
+bool foundMoreArgs(stringstream& lineStream);
 
 // Global variables
-RegisterList *registerList; // holding the list of registers
-QueueList *doneList; // holding the list of customers served
-QueueList *singleQueue; // holding customers in a single virtual queue
-double expTimeElapsed; // time elapsed since the beginning of the simulation
+RegisterList* registerList;  // holding the list of registers
+QueueList* doneList;         // holding the list of customers served
+QueueList* singleQueue;      // holding customers in a single virtual queue
+double expTimeElapsed;  // time elapsed since the beginning of the simulation
 
 // List of commands:
 // To open a register
@@ -76,7 +75,7 @@ int main() {
     getline(cin, line);
   }
 
-  // You have to make sure all dynamically allocated memory is freed 
+  // You have to make sure all dynamically allocated memory is freed
   // before return 0
   return 0;
 }
@@ -94,11 +93,12 @@ string getMode() {
   } else if (mode == "multiple") {
     cout << "Simulating multiple queues ..." << endl;
   }
+  // default???
 
   return mode;
 }
 
-void addCustomer(stringstream &lineStream, string mode) {
+void addCustomer(stringstream& lineStream, string mode) {
   int items;
   double timeElapsed;
   if (!getInt(lineStream, items) || !getDouble(lineStream, timeElapsed)) {
@@ -112,9 +112,19 @@ void addCustomer(stringstream &lineStream, string mode) {
   // Depending on the mode of the simulation (single or multiple),
   // add the customer to the single queue or to the register with
   // fewest items
+
+  Customer* newCustomer = new Customer(timeElapsed, items);
+
+  // 1. single mode
+  if (mode == "single") {
+    singleQueue->enqueue(newCustomer);
+  } else {
+    Register* minReg = registerList->get_min_items_register();
+    minReg->get_queue_list()->enqueue(newCustomer);
+  }
 }
 
-void parseRegisterAction(stringstream &lineStream, string mode) {
+void parseRegisterAction(stringstream& lineStream, string mode) {
   string operation;
   lineStream >> operation;
   if (operation == "open") {
@@ -126,7 +136,7 @@ void parseRegisterAction(stringstream &lineStream, string mode) {
   }
 }
 
-void openRegister(stringstream &lineStream, string mode) {
+void openRegister(stringstream& lineStream, string mode) {
   int ID;
   double secPerItem, setupTime, timeElapsed;
   // convert strings to int and double
@@ -142,15 +152,25 @@ void openRegister(stringstream &lineStream, string mode) {
   }
 
   // Check if the register is already open
-  // If it's open, print an error message
-  // Otherwise, open the register
-  // If we were simulating a single queue, 
-  // and there were customers in line, then 
+  if (registerList->foundRegister(ID)) {
+    cout << "Error: register " << ID << " is already open" << endl;
+    return;
+  }
+
+  // Open the register
+  Register* newRegister = new Register(ID, secPerItem, setupTime, timeElapsed);
+  registerList->enqueue(newRegister);
+
+  // If we were simulating a single queue,
+  // and there were customers in line, then
   // assign a customer to the new register
-  
+  if (mode == "single" && singleQueue->get_head() != nullptr) {
+    Customer* customer = singleQueue->dequeue();
+    newRegister->get_queue_list()->enqueue(customer);
+  }
 }
 
-void closeRegister(stringstream &lineStream, string mode) {
+void closeRegister(stringstream& lineStream, string mode) {
   int ID;
   double timeElapsed;
   // convert string to int
@@ -164,11 +184,46 @@ void closeRegister(stringstream &lineStream, string mode) {
   }
   // Check if the register is open
   // If it is open dequeue it and free it's memory
-  // Otherwise, print an error message 
-  
+  // Otherwise, print an error message
+
+  if (!registerList->foundRegister(ID)) {
+    cout << "Error: register " << ID << " is not open" << endl;
+    return;
+  }
+
+  // Dequeue the register from the register list
+  Register* closingRegister = registerList->dequeue(ID);
+
+  if (closingRegister == nullptr) {
+    return;
+  }
+
+  // If in single queue mode, move customers back to the single queue
+  if (mode == "single") {
+    QueueList* regQueue = closingRegister->get_queue_list();
+    Customer* customer = regQueue->dequeue();
+    while (customer != nullptr) {
+      singleQueue->enqueue(customer);
+      customer = regQueue->dequeue();
+    }
+  } else {
+    // In multiple queue mode, redistribute customers to other registers
+    QueueList* regQueue = closingRegister->get_queue_list();
+    Customer* customer = regQueue->dequeue();
+    while (customer != nullptr) {
+      Register* minReg = registerList->get_min_items_register();
+      if (minReg != nullptr) {
+        minReg->get_queue_list()->enqueue(customer);
+      }
+      customer = regQueue->dequeue();
+    }
+  }
+
+  // Free the register's memory
+  delete closingRegister;
 }
 
-bool getInt(stringstream &lineStream, int &iValue) {
+bool getInt(stringstream& lineStream, int& iValue) {
   // Reads an int from the command line
   string command;
   lineStream >> command;
@@ -179,7 +234,7 @@ bool getInt(stringstream &lineStream, int &iValue) {
   return true;
 }
 
-bool getDouble(stringstream &lineStream, double &dvalue) {
+bool getDouble(stringstream& lineStream, double& dvalue) {
   // Reads a double from the command line
   string command;
   lineStream >> command;
@@ -190,7 +245,7 @@ bool getDouble(stringstream &lineStream, double &dvalue) {
   return true;
 }
 
-bool foundMoreArgs(stringstream &lineStream) {
+bool foundMoreArgs(stringstream& lineStream) {
   string command;
   lineStream >> command;
   if (lineStream.fail()) {
