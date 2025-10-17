@@ -6,7 +6,10 @@ QueueList::QueueList() { head = nullptr; }
 
 QueueList::QueueList(Customer* customer) { head = customer; }
 
-QueueList::~QueueList() {}
+QueueList::~QueueList() {
+  // QueueList doesn't own the customers, so don't delete them here
+  // Customers will be deleted by whoever owns them (doneList in main)
+}
 
 Customer* QueueList::get_head() { return head; }
 

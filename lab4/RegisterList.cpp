@@ -13,9 +13,8 @@ RegisterList::RegisterList() {
 RegisterList::~RegisterList() {
   // Delete all registers in the list
   Register* curr = head;
-  for (int i = 0; i < size; i++) {
+  while (curr != nullptr) {
     Register* next = curr->get_next();
-    delete curr->get_queue_list();
     delete curr;
     curr = next;
   }
